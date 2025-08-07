@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "201287758741",
+    "project_id": "moisil-proto",
+    "storage_bucket": "moisil-proto.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:201287758741:android:8b0041278ea7107e96bc9c",
+        "android_client_info": {
+          "package_name": "com.example.moisil_finder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHvriFFNxliJ6mD3momq0FDAhzBNuL1Ko"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
