@@ -1,7 +1,11 @@
 # main.py
-from fastapi import FastAPI, status, Response
+from fastapi import FastAPI, status, Response, Depends
 from pydantic import BaseModel
 from typing import List, Optional
+
+from sqlalchemy.orm import Session
+from sqlalchemy import text
+from database import get_db
 
 # --- Pydantic 모델 정의 (요청/응답 형식) ---
 class Activity(BaseModel):
@@ -15,11 +19,24 @@ class CartItemCreate(BaseModel):
 # --- FastAPI 앱 인스턴스 생성 ---
 app = FastAPI()
 
+
+
 # --- API 엔드포인트 뼈대 코드 ---
 
 @app.get("/")
 def read_root():
     return {"message": "아빠 어디가? API 서버"}
+
+# # --- DB 연결 테스트 엔드포인트 (기존과 동일) ---
+# @app.get("/db-test", tags=["Test"])
+# def database_connection_test(db: Session = Depends(get_db)):
+#     """실제 DB 세션을 생성하고 간단한 쿼리를 실행하여 연결을 테스트합니다."""
+#     try:
+#         db.execute(text("SELECT 1"))
+#         return {"status": "ok", "message": "데이터베이스 연결에 성공했습니다."}
+#     except Exception as e:
+#         return {"status": "error", "message": f"데이터베이스 연결 실패: {e}"}
+# # ------------------------------------------------
 
 # 1. 인증 (/auth)
 @app.post("/api/v1/auth/register", status_code=status.HTTP_201_CREATED)
