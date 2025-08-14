@@ -45,16 +45,25 @@ function App() {
           )}
         </header>
         <main>
+          {/* 2. Routes 부분을 아래 코드로 교체합니다. */}
           <Routes>
-            <Route path="/login" element={<LoginPage />} />
+            {/* session이 없으면 LoginPage를, 있으면 메인 페이지(/)로 리디렉션 */}
+            <Route 
+              path="/login" 
+              element={!session ? <LoginPage /> : <Navigate to="/" replace />} 
+            />
             
-            <Route path="/" element={
+            <Route 
+              path="/" 
+              element={
                 <ProtectedRoute session={session}>
                     <HomePage />
                 </ProtectedRoute>
             } />
             
-            <Route path="/admin" element={
+            <Route 
+              path="/admin" 
+              element={
                 <ProtectedRoute session={session} adminOnly={true}>
                     <AdminPage />
                 </ProtectedRoute>

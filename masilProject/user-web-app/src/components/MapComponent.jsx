@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 export default function MapComponent() {
-  const [opportunities, setOpportunities] = useState([]);
+  const [jobs, setJobs] = useState([]);
 
   useEffect(() => {
     if (window.naver && window.naver.maps) {
@@ -10,22 +10,24 @@ export default function MapComponent() {
         zoom: 12,
       };
       const map = new window.naver.maps.Map('map', mapOptions);
-      fetchOpportunitiesAndDrawMarkers(map);
+      fetchJobsAndDrawMarkers(map);
     } else {
       console.error("네이버 지도 API가 로드되지 않았습니다.");
     }
   }, []);
 
-  const fetchOpportunitiesAndDrawMarkers = async (map) => {
+  const fetchJobsAndDrawMarkers = async (map) => {
     try {
-      const response = await fetch('http://localhost:8000/api/opportunities');
+      // opportunities -> jobs
+      const response = await fetch('http://localhost:8000/api/jobs');
       const data = await response.json();
-      setOpportunities(data);
+      setJobs(data);
 
       console.log('✅ 지도 데이터 로딩 성공:', data);
 
-      data.forEach((op) => {
-        const markerPosition = new window.naver.maps.LatLng(op.latitude, op.longitude);
+      data.forEach((job) => {
+        // latitude -> job_latitude, longitude -> job_longitude
+        const markerPosition = new window.naver.maps.LatLng(job.job_latitude, job.job_longitude);
         
         const marker = new window.naver.maps.Marker({
           position: markerPosition,
@@ -33,7 +35,7 @@ export default function MapComponent() {
         });
 
         const infowindow = new window.naver.maps.InfoWindow({
-            content: `<div style="padding:10px;border:1px solid black;font-size:12px;">${op.title}</div>`
+            content: `<div style="padding:10px;border:1px solid black;font-size:12px;">${job.title}</div>`
         });
 
         window.naver.maps.Event.addListener(marker, 'click', () => {

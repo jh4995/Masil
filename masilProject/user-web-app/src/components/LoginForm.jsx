@@ -24,7 +24,7 @@ export default function LoginForm() {
       alert(error.error_description || error.message);
     } else if (user) {
       const { data: profile, error: profileError } = await supabase
-        .from('profiles')
+        .from('users')
         .select('role')
         .eq('id', user.id)
         .single();

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function OpportunityForm({ editingOpportunity, onComplete }) {
+export default function JobForm({ editingJob, onComplete }) {
   const [title, setTitle] = useState('');
   const [client, setClient] = useState('');
   const [description, setDescription] = useState('');
@@ -11,30 +11,28 @@ export default function OpportunityForm({ editingOpportunity, onComplete }) {
   const [endTime, setEndTime] = useState('');
   const [place, setPlace] = useState('');
   const [address, setAddress] = useState('');
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
-  // const [tags, setTags] = useState('');
+  const [jobLatitude, setJobLatitude] = useState('');
+  const [jobLongitude, setJobLongitude] = useState('');
   
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (editingOpportunity) {
-      setTitle(editingOpportunity.title || '');
-      setClient(editingOpportunity.client || '');
-      setDescription(editingOpportunity.description || '');
-      setParticipants(editingOpportunity.participants || '');
-      setHourlyWage(editingOpportunity.hourly_wage || '');
-      setWorkDays(editingOpportunity.work_days || '');
-      setStartTime(editingOpportunity.start_time || '');
-      setEndTime(editingOpportunity.end_time || '');
-      setPlace(editingOpportunity.place || '');
-      setAddress(editingOpportunity.address || '');
-      setLatitude(editingOpportunity.latitude || '');
-      setLongitude(editingOpportunity.longitude || '');
-      // setTags(editingOpportunity.tags?.join(', ') || '');
+    if (editingJob) {
+      setTitle(editingJob.title || '');
+      setClient(editingJob.client || '');
+      setDescription(editingJob.description || '');
+      setParticipants(editingJob.participants || '');
+      setHourlyWage(editingJob.hourly_wage || '');
+      setWorkDays(editingJob.work_days || '');
+      setStartTime(editingJob.start_time || '');
+      setEndTime(editingJob.end_time || '');
+      setPlace(editingJob.place || '');
+      setAddress(editingJob.address || '');
+      setJobLatitude(editingJob.job_latitude || '');
+      setJobLongitude(editingJob.job_longitude || '');
     }
-  }, [editingOpportunity]);
+  }, [editingJob]);
 
   const handleGeocode = async () => {
     if (!address) {
@@ -47,8 +45,8 @@ export default function OpportunityForm({ editingOpportunity, onComplete }) {
       const response = await fetch(url);
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || '알 수 없는 오류');
-      setLatitude(data.latitude);
-      setLongitude(data.longitude);
+      setJobLatitude(data.latitude);
+      setJobLongitude(data.longitude);
       alert('좌표를 성공적으로 찾았습니다.');
     } catch (error) {
       alert(`좌표 찾기 실패: ${error.message}`);
@@ -61,7 +59,7 @@ export default function OpportunityForm({ editingOpportunity, onComplete }) {
     e.preventDefault();
     setIsSubmitting(true);
     
-    const opportunityData = {
+    const jobData = {
       title,
       client,
       description,
@@ -72,22 +70,22 @@ export default function OpportunityForm({ editingOpportunity, onComplete }) {
       end_time: endTime || null,
       place,
       address,
-      latitude: parseFloat(latitude),
-      longitude: parseFloat(longitude),
-      // tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
+      job_latitude: parseFloat(jobLatitude),
+      job_longitude: parseFloat(jobLongitude),
+      tags: [], // tags 필드는 현재 폼에서 사용하지 않으므로 빈 배열로 전달
     };
 
-    const isEditing = !!editingOpportunity;
+    const isEditing = !!editingJob;
     const url = isEditing 
-      ? `http://localhost:8000/api/opportunities/${editingOpportunity.job_id}` 
-      : 'http://localhost:8000/api/opportunities';
+      ? `http://localhost:8000/api/jobs/${editingJob.job_id}` 
+      : 'http://localhost:8000/api/jobs';
     const method = isEditing ? 'PUT' : 'POST';
 
     try {
       const response = await fetch(url, {
         method: method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(opportunityData),
+        body: JSON.stringify(jobData),
       });
       if (!response.ok) {
         const errorData = await response.json();
@@ -104,7 +102,7 @@ export default function OpportunityForm({ editingOpportunity, onComplete }) {
 
   return (
     <form onSubmit={handleSubmit} style={{ border: '1px solid #ccc', padding: '1rem', margin: '1rem 0', display: 'grid', gap: '10px' }}>
-      <h3>{editingOpportunity ? '소일거리 수정' : '새 소일거리 등록'}</h3>
+      <h3>{editingJob ? '소일거리 수정' : '새 소일거리 등록'}</h3>
       
       <input type="text" placeholder="* 사업명(제목)" value={title} onChange={(e) => setTitle(e.target.value)} required />
       <input type="text" placeholder="클라이언트 (복지관 등)" value={client} onChange={(e) => setClient(e.target.value)} />
@@ -126,14 +124,13 @@ export default function OpportunityForm({ editingOpportunity, onComplete }) {
       </div>
       
       <div style={{display:'flex', gap: '10px'}}>
-        <input type="number" step="any" placeholder="* 위도 (자동 입력)" value={latitude} onChange={(e) => setLatitude(e.target.value)} required readOnly />
-        <input type="number" step="any" placeholder="* 경도 (자동 입력)" value={longitude} onChange={(e) => setLongitude(e.target.value)} required readOnly />
+        <input type="number" step="any" placeholder="* 위도 (자동 입력)" value={jobLatitude} onChange={(e) => setJobLatitude(e.target.value)} required readOnly />
+        <input type="number" step="any" placeholder="* 경도 (자동 입력)" value={jobLongitude} onChange={(e) => setJobLongitude(e.target.value)} required readOnly />
       </div>
-      {/* <input type="text" placeholder="태그 (콤마로 구분)" value={tags} onChange={(e) => setTags(e.target.value)} /> */}
       
       <div style={{display:'flex', gap: '10px'}}>
         <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? '저장 중...' : (editingOpportunity ? '수정하기' : '저장하기')}
+          {isSubmitting ? '저장 중...' : (editingJob ? '수정하기' : '저장하기')}
         </button>
         <button type="button" onClick={onComplete}>취소</button>
       </div>
