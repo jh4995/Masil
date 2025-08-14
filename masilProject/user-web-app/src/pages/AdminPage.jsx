@@ -1,68 +1,73 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../supabaseClient';
 import OpportunityForm from '../components/OpportunityForm';
 
 export default function AdminPage() {
   const [opportunities, setOpportunities] = useState([]);
-  const [editingOpportunity, setEditingOpportunity] = useState(null); // 수정 중인 데이터
-  const [showForm, setShowForm] = useState(false); // 폼 표시 여부
+  const [editingOpportunity, setEditingOpportunity] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // 처음 로드될 때 데이터 목록을 가져옵니다.
+  // FastAPI 서버에서 데이터를 가져오도록 수정
+  const fetchOpportunities = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/opportunities');
+      if (!response.ok) throw new Error('데이터를 불러오는데 실패했습니다.');
+      const data = await response.json();
+      setOpportunities(data);
+    } catch (error) {
+      console.error('데이터 조회 오류', error);
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchOpportunities();
   }, []);
 
-  const fetchOpportunities = async () => {
-    const { data, error } = await supabase
-      .from('opportunities')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (error) console.error('데이터 조회 오류', error);
-    else setOpportunities(data);
-  };
-
-  const handleDelete = async (id) => {
+  // FastAPI 서버에 삭제를 요청하도록 수정
+  const handleDelete = async (job_id) => {
     if (window.confirm('정말 삭제하시겠습니까?')) {
-      const { error } = await supabase
-        .from('opportunities')
-        .delete()
-        .eq('id', id);
-
-      if (error) {
-        alert('삭제 오류: ' + error.message);
-      } else {
+      try {
+        const response = await fetch(`http://localhost:8000/api/opportunities/${job_id}`, {
+          method: 'DELETE',
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || '삭제 실패');
+        }
         alert('삭제되었습니다.');
         fetchOpportunities(); // 목록 새로고침
+      } catch (error) {
+        alert('삭제 오류: ' + error.message);
       }
     }
   };
-  
-  // 수정 버튼 클릭 시
+
   const handleEdit = (opportunity) => {
     setEditingOpportunity(opportunity);
     setShowForm(true);
   };
 
-  // 새 글 작성 버튼 클릭 시
   const handleAddNew = () => {
-    setEditingOpportunity(null); // 수정 모드 해제
+    setEditingOpportunity(null);
     setShowForm(true);
   };
 
-  // 폼 작업 완료 시 (저장 또는 취소)
   const handleFormComplete = () => {
     setShowForm(false);
     setEditingOpportunity(null);
     fetchOpportunities(); // 목록 새로고침
   };
 
+  if (loading) return <p>데이터를 불러오는 중...</p>;
+
   return (
     <div>
       <h2>관리자 대시보드</h2>
-      <button onClick={handleAddNew}>새 소일거리 등록</button>
+      {!showForm && <button onClick={handleAddNew}>새 소일거리 등록</button>}
 
-      {/* 폼 표시/숨김 처리 */}
       {showForm && (
         <OpportunityForm 
           editingOpportunity={editingOpportunity}
@@ -70,26 +75,26 @@ export default function AdminPage() {
         />
       )}
 
-      <hr />
+      <hr style={{ margin: '2rem 0' }}/>
       <h3>소일거리 목록</h3>
-      <table border="1" style={{ width: '100%', textAlign: 'left' }}>
+      <table border="1" style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
         <thead>
           <tr>
-            <th>제목</th>
-            <th>장소</th>
-            <th>태그</th>
-            <th>관리</th>
+            <th style={{padding: '8px'}}>제목</th>
+            <th style={{padding: '8px'}}>장소</th>
+            <th style={{padding: '8px'}}>시급</th>
+            <th style={{padding: '8px'}}>관리</th>
           </tr>
         </thead>
         <tbody>
           {opportunities.map((op) => (
-            <tr key={op.id}>
-              <td>{op.title}</td>
-              <td>{op.location_name}</td>
-              <td>{op.tags?.join(', ')}</td>
-              <td>
-                <button onClick={() => handleEdit(op)}>수정</button>
-                <button onClick={() => handleDelete(op.id)}>삭제</button>
+            <tr key={op.job_id}>
+              <td style={{padding: '8px'}}>{op.title}</td>
+              <td style={{padding: '8px'}}>{op.place}</td>
+              <td style={{padding: '8px'}}>{op.hourly_wage.toLocaleString()}원</td>
+              <td style={{padding: '8px'}}>
+                <button onClick={() => handleEdit(op)} style={{marginRight: '5px'}}>수정</button>
+                <button onClick={() => handleDelete(op.job_id)}>삭제</button>
               </td>
             </tr>
           ))}

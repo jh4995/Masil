@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../supabaseClient';
-
-const NAVER_API_KEY_ID = import.meta.env.VITE_NAVER_API_KEY_ID;
-const NAVER_API_KEY = import.meta.env.VITE_NAVER_API_KEY;
 
 export default function OpportunityForm({ editingOpportunity, onComplete }) {
-  // 1. 데이터베이스 필드에 맞는 모든 state 선언
   const [title, setTitle] = useState('');
   const [client, setClient] = useState('');
   const [description, setDescription] = useState('');
@@ -18,12 +13,11 @@ export default function OpportunityForm({ editingOpportunity, onComplete }) {
   const [address, setAddress] = useState('');
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
-  const [tags, setTags] = useState('');
+  // const [tags, setTags] = useState('');
   
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 2. 수정 모드일 경우, 폼에 기존 데이터를 채워넣는 로직
   useEffect(() => {
     if (editingOpportunity) {
       setTitle(editingOpportunity.title || '');
@@ -38,47 +32,31 @@ export default function OpportunityForm({ editingOpportunity, onComplete }) {
       setAddress(editingOpportunity.address || '');
       setLatitude(editingOpportunity.latitude || '');
       setLongitude(editingOpportunity.longitude || '');
-      setTags(editingOpportunity.tags?.join(', ') || '');
+      // setTags(editingOpportunity.tags?.join(', ') || '');
     }
   }, [editingOpportunity]);
 
-  // 2. Naver API를 직접 호출하도록 geocode 함수를 수정합니다.
   const handleGeocode = async () => {
     if (!address) {
       alert('먼저 주소를 입력해주세요.');
       return;
     }
     setIsGeocoding(true);
-
-    const url = `/map-geocode/v2/geocode?query=${encodeURIComponent(address)}`;
-
+    const url = `http://localhost:8000/api/geocode?address=${encodeURIComponent(address)}`;
     try {
-      // fetch API를 사용하여 Naver API를 직접 호출
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'X-NCP-APIGW-API-KEY-ID': NAVER_API_KEY_ID,
-          'X-NCP-APIGW-API-KEY': NAVER_API_KEY,
-        },
-      });
-
+      const response = await fetch(url);
       const data = await response.json();
-
-      if (response.ok && data.status === 'OK' && data.addresses.length > 0) {
-        setLatitude(data.addresses[0].y);
-        setLongitude(data.addresses[0].x);
-        alert('좌표를 성공적으로 찾았습니다.');
-      } else {
-        throw new Error(data.errorMessage || '해당 주소의 좌표를 찾을 수 없습니다.');
-      }
+      if (!response.ok) throw new Error(data.detail || '알 수 없는 오류');
+      setLatitude(data.latitude);
+      setLongitude(data.longitude);
+      alert('좌표를 성공적으로 찾았습니다.');
     } catch (error) {
       alert(`좌표 찾기 실패: ${error.message}`);
     } finally {
       setIsGeocoding(false);
     }
   };
-  
-  // 4. 폼 제출 시 데이터를 Supabase에 저장(생성 또는 수정)하는 함수
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -96,45 +74,49 @@ export default function OpportunityForm({ editingOpportunity, onComplete }) {
       address,
       latitude: parseFloat(latitude),
       longitude: parseFloat(longitude),
-      tags: tags ? tags.split(',').map(tag => tag.trim()) : null,
+      // tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
     };
 
-    let error;
-    if (editingOpportunity) {
-      // 수정 모드: update
-      ({ error } = await supabase
-        .from('opportunities')
-        .update({ ...opportunityData, updated_at: new Date() })
-        .eq('job_id', editingOpportunity.job_id));
-    } else {
-      // 생성 모드: insert
-      ({ error } = await supabase
-        .from('opportunities')
-        .insert([opportunityData]));
-    }
+    const isEditing = !!editingOpportunity;
+    const url = isEditing 
+      ? `http://localhost:8000/api/opportunities/${editingOpportunity.job_id}` 
+      : 'http://localhost:8000/api/opportunities';
+    const method = isEditing ? 'PUT' : 'POST';
 
-    if (error) {
+    try {
+      const response = await fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(opportunityData),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || '알 수 없는 오류');
+      }
+      alert(isEditing ? '수정되었습니다!' : '저장되었습니다!');
+      onComplete();
+    } catch (error) {
       alert('오류 발생: ' + error.message);
-    } else {
-      alert(editingOpportunity ? '수정되었습니다!' : '저장되었습니다!');
-      onComplete(); // 부모 컴포넌트에 작업 완료 알림
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ border: '1px solid #ccc', padding: '1rem', margin: '1rem 0' }}>
+    <form onSubmit={handleSubmit} style={{ border: '1px solid #ccc', padding: '1rem', margin: '1rem 0', display: 'grid', gap: '10px' }}>
       <h3>{editingOpportunity ? '소일거리 수정' : '새 소일거리 등록'}</h3>
       
-      <div><input type="text" placeholder="* 사업명(제목)" value={title} onChange={(e) => setTitle(e.target.value)} required /></div>
-      <div><input type="text" placeholder="클라이언트 (복지관 등)" value={client} onChange={(e) => setClient(e.target.value)} /></div>
-      <div><textarea placeholder="근무 내용" value={description} onChange={(e) => setDescription(e.target.value)} /></div>
-      <div><input type="number" placeholder="모집 인원" value={participants} onChange={(e) => setParticipants(e.target.value)} /></div>
-      <div><input type="number" placeholder="* 시급(원)" value={hourlyWage} onChange={(e) => setHourlyWage(e.target.value)} required /></div>
-      <div><input type="text" placeholder="근무 요일 (예: 1111100)" value={workDays} onChange={(e) => setWorkDays(e.target.value)} /></div>
-      <div><label>시작 시간: </label><input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} /></div>
-      <div><label>종료 시간: </label><input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} /></div>
-      <div><input type="text" placeholder="* 근무 지역 (예: 성내동)" value={place} onChange={(e) => setPlace(e.target.value)} required /></div>
+      <input type="text" placeholder="* 사업명(제목)" value={title} onChange={(e) => setTitle(e.target.value)} required />
+      <input type="text" placeholder="클라이언트 (복지관 등)" value={client} onChange={(e) => setClient(e.target.value)} />
+      <textarea placeholder="근무 내용" value={description} onChange={(e) => setDescription(e.target.value)} />
+      <input type="number" placeholder="모집 인원" value={participants} onChange={(e) => setParticipants(e.target.value)} />
+      <input type="number" placeholder="* 시급(원)" value={hourlyWage} onChange={(e) => setHourlyWage(e.target.value)} required />
+      <input type="text" placeholder="근무 요일 (예: 1111100)" value={workDays} onChange={(e) => setWorkDays(e.target.value)} />
+      <div style={{display:'flex', gap: '10px'}}>
+        <label>시작 시간: <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} /></label>
+        <label>종료 시간: <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} /></label>
+      </div>
+      <input type="text" placeholder="* 근무 지역 (예: 성내동)" value={place} onChange={(e) => setPlace(e.target.value)} required />
       
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
         <input type="text" placeholder="도로명 주소 (지오코딩용)" value={address} onChange={(e) => setAddress(e.target.value)} style={{ flex: 1 }} />
@@ -143,14 +125,18 @@ export default function OpportunityForm({ editingOpportunity, onComplete }) {
         </button>
       </div>
       
-      <div><input type="number" step="any" placeholder="* 위도 (자동 입력)" value={latitude} onChange={(e) => setLatitude(e.target.value)} required readOnly /></div>
-      <div><input type="number" step="any" placeholder="* 경도 (자동 입력)" value={longitude} onChange={(e) => setLongitude(e.target.value)} required readOnly /></div>
-      <div><input type="text" placeholder="태그 (콤마로 구분)" value={tags} onChange={(e) => setTags(e.target.value)} /></div>
+      <div style={{display:'flex', gap: '10px'}}>
+        <input type="number" step="any" placeholder="* 위도 (자동 입력)" value={latitude} onChange={(e) => setLatitude(e.target.value)} required readOnly />
+        <input type="number" step="any" placeholder="* 경도 (자동 입력)" value={longitude} onChange={(e) => setLongitude(e.target.value)} required readOnly />
+      </div>
+      {/* <input type="text" placeholder="태그 (콤마로 구분)" value={tags} onChange={(e) => setTags(e.target.value)} /> */}
       
-      <button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? '저장 중...' : (editingOpportunity ? '수정하기' : '저장하기')}
-      </button>
-      <button type="button" onClick={onComplete}>취소</button>
+      <div style={{display:'flex', gap: '10px'}}>
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? '저장 중...' : (editingOpportunity ? '수정하기' : '저장하기')}
+        </button>
+        <button type="button" onClick={onComplete}>취소</button>
+      </div>
     </form>
   );
 }
