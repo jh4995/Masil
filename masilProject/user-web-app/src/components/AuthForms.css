@@ -1,0 +1,144 @@
+/* src/components/AuthForms.css */
+.auth-container {
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #ffffff;
+  box-sizing: border-box;
+}
+
+.auth-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 8px;
+  margin-right: 16px;
+  color: #2c3e50;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.back-btn:hover {
+  background-color: #f8f9fa;
+}
+
+.auth-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+  flex: 1;
+  text-align: center;
+  margin-right: 56px; /* 뒤로가기 버튼 공간 보정 */
+}
+
+.auth-form {
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: #34495e;
+}
+
+.auth-input::placeholder {
+  color: #95a5a6;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn-outline-small, .btn-primary-small {
+  flex: 1;
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid #34495e;
+}
+
+.btn-outline-small {
+  background-color: transparent;
+  color: #34495e;
+}
+
+.btn-outline-small:hover:not(:disabled) {
+  background-color: #34495e;
+  color: white;
+}
+
+.btn-primary-small {
+  background-color: #34495e;
+  color: white;
+}
+
+.btn-primary-small:hover:not(:disabled) {
+  background-color: #2c3e50;
+}
+
+.btn-outline-small:disabled, .btn-primary-small:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary-full {
+  width: 100%;
+  padding: 16px;
+  background-color: #34495e;
+  border: 1px solid #34495e;
+  color: white;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary-full:hover:not(:disabled) {
+  background-color: #2c3e50;
+}
+
+.btn-primary-full:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 모바일 최적화 */
+@media (max-width: 480px) {
+  .auth-container {
+    padding: 16px;
+  }
+  
+  .auth-form {
+    max-width: 100%;
+  }
+  
+  .auth-input {
+    font-size: 16px; /* iOS에서 줌 방지 */
+  }
+}

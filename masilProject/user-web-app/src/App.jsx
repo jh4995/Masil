@@ -7,6 +7,10 @@ import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
+//추가
+import ActivityListPage from './pages/ActivityListPage';
+
+
 function App() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true); // 1. 로딩 상태 추가 (초기값 true)
@@ -45,29 +49,24 @@ function App() {
           )}
         </header>
         <main>
-          {/* 2. Routes 부분을 아래 코드로 교체합니다. */}
           <Routes>
-            {/* session이 없으면 LoginPage를, 있으면 메인 페이지(/)로 리디렉션 */}
-            <Route 
-              path="/login" 
-              element={!session ? <LoginPage /> : <Navigate to="/" replace />} 
-            />
+            <Route path="/login" element={<LoginPage />} />
             
-            <Route 
-              path="/" 
-              element={
+            <Route path="/" element={
                 <ProtectedRoute session={session}>
                     <HomePage />
                 </ProtectedRoute>
             } />
             
-            <Route 
-              path="/admin" 
-              element={
+            <Route path="/admin" element={
                 <ProtectedRoute session={session} adminOnly={true}>
                     <AdminPage />
                 </ProtectedRoute>
             } />
+
+            //추가
+            <Route path="/activities" element={<ActivityListPage />} />
+
           </Routes>
         </main>
       </div>
