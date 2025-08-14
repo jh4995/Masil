@@ -67,17 +67,35 @@ import './AuthForms.css';
 export default function SignUpForm() {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
     nickname: '',
+    gender: '',
+    birthDate: '',
+    residence: '',
+    workExperience: '',
     phone: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    interests: []
   });
+
+  const interestOptions = [
+    '영어', '일본어', '중국어', '기타 언어', 
+    '활동력/체력', 'IT/기술 활용', '커뮤니케이션', '창의 활동'
+  ];
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
+    }));
+  };
+
+  const handleInterestToggle = (interest) => {
+    setFormData(prev => ({
+      ...prev,
+      interests: prev.interests.includes(interest)
+        ? prev.interests.filter(item => item !== interest)
+        : [...prev.interests, interest]
     }));
   };
 
@@ -101,8 +119,12 @@ export default function SignUpForm() {
       password: formData.password,
       options: {
         data: {
-          name: formData.name,
-          nickname: formData.nickname
+          nickname: formData.nickname,
+          gender: formData.gender,
+          birth_date: formData.birthDate,
+          residence: formData.residence,
+          work_experience: formData.workExperience,
+          interests: formData.interests
         }
       }
     });
@@ -133,51 +155,105 @@ export default function SignUpForm() {
         <h2 className="auth-title">회원가입</h2>
       </div>
       
-      <form className="auth-form" onSubmit={handleSignUp}>
-        <input
-          type="text"
-          placeholder="이름"
-          className="auth-input"
-          value={formData.name}
-          required
-          onChange={(e) => handleInputChange('name', e.target.value)}
-        />
-        
-        <input
-          type="text"
-          placeholder="닉네임"
-          className="auth-input"
-          value={formData.nickname}
-          required
-          onChange={(e) => handleInputChange('nickname', e.target.value)}
-        />
-        
-        <input
-          type="tel"
-          placeholder="전화번호 ('-' 제외)"
-          className="auth-input"
-          value={formData.phone}
-          required
-          onChange={(e) => handleInputChange('phone', e.target.value.replace(/[^0-9]/g, ''))}
-        />
-        
-        <input
-          type="password"
-          placeholder="비밀번호"
-          className="auth-input"
-          value={formData.password}
-          required
-          onChange={(e) => handleInputChange('password', e.target.value)}
-        />
-        
-        <input
-          type="password"
-          placeholder="비밀번호 재확인"
-          className="auth-input"
-          value={formData.confirmPassword}
-          required
-          onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-        />
+      <form className="auth-form signup-form" onSubmit={handleSignUp}>
+        {/* 기본 정보 */}
+        <div className="form-section">
+          <input
+            type="text"
+            placeholder="닉네임"
+            className="auth-input"
+            value={formData.nickname}
+            required
+            onChange={(e) => handleInputChange('nickname', e.target.value)}
+          />
+          
+          <select
+            className="auth-input"
+            value={formData.gender}
+            required
+            onChange={(e) => handleInputChange('gender', e.target.value)}
+          >
+            <option value="">성별 선택</option>
+            <option value="male">남성</option>
+            <option value="female">여성</option>
+            <option value="other">기타</option>
+          </select>
+          
+          <input
+            type="date"
+            placeholder="생년월일"
+            className="auth-input"
+            value={formData.birthDate}
+            required
+            onChange={(e) => handleInputChange('birthDate', e.target.value)}
+          />
+          
+          <input
+            type="text"
+            placeholder="거주지"
+            className="auth-input"
+            value={formData.residence}
+            required
+            onChange={(e) => handleInputChange('residence', e.target.value)}
+          />
+          
+          <textarea
+            placeholder="과거 일자리 경험 (선택사항)"
+            className="auth-textarea"
+            value={formData.workExperience}
+            rows="3"
+            onChange={(e) => handleInputChange('workExperience', e.target.value)}
+          />
+        </div>
+
+        {/* 취미 및 관심사 */}
+        <div className="form-section">
+          <h3 className="section-title">취미 및 관심사</h3>
+          <p className="section-subtitle">관심 있는 분야를 선택해주세요 (복수 선택 가능)</p>
+          
+          <div className="interest-grid">
+            {interestOptions.map((interest) => (
+              <button
+                key={interest}
+                type="button"
+                className={`interest-btn ${formData.interests.includes(interest) ? 'selected' : ''}`}
+                onClick={() => handleInterestToggle(interest)}
+              >
+                {interest}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 계정 정보 */}
+        <div className="form-section">
+          <input
+            type="tel"
+            placeholder="전화번호 ('-' 제외)"
+            className="auth-input"
+            value={formData.phone}
+            required
+            onChange={(e) => handleInputChange('phone', e.target.value.replace(/[^0-9]/g, ''))}
+          />
+          
+          <input
+            type="password"
+            placeholder="비밀번호"
+            className="auth-input"
+            value={formData.password}
+            required
+            onChange={(e) => handleInputChange('password', e.target.value)}
+          />
+          
+          <input
+            type="password"
+            placeholder="비밀번호 재확인"
+            className="auth-input"
+            value={formData.confirmPassword}
+            required
+            onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+          />
+        </div>
         
         <div className="form-actions">
           <button 

@@ -31,13 +31,24 @@ export default function HomePage() {
 
 // src/pages/HomePage.jsx
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './HomePage.css';
 
 const HomePage = () => {
+  const navigate = useNavigate();
+
+  const handleSignUp = () => {
+    navigate('/signup');
+  };
+
+  const handleLogin = () => {
+    navigate('/login');
+  };
+
   return (
     <div className="splash-container">
       <div className="logo-section">
-        <div className="logo-circle">
+        <div className="logo-container">
           <img src="/greenplum.gif" alt="로고" className="logo-image" />
         </div>
         <h1 className="app-title">프로젝트명</h1>
@@ -45,10 +56,10 @@ const HomePage = () => {
       </div>
       
       <div className="button-section">
-        <button className="btn-outline" onClick={() => navigate('/signup')}>
+        <button className="btn-outline" onClick={handleSignUp}>
           회원가입
         </button>
-        <button className="btn-primary" onClick={() => navigate('/login')}>
+        <button className="btn-primary" onClick={handleLogin}>
           로그인
         </button>
       </div>
