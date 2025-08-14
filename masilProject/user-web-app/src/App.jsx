@@ -1,67 +1,64 @@
-import React, { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { supabase } from "./supabaseClient"; // supabase import 추가
-import HomePage from "./pages/HomePage";
-import AdminPage from "./pages/AdminPage";
-import LoginPage from "./pages/LoginPage";
-import ProtectedRoute from "./components/ProtectedRoute";
-import "./App.css";
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { supabase } from './supabaseClient';
+import HomePage from './pages/HomePage';
+import AdminPage from './pages/AdminPage';
+import LoginPage from './pages/LoginPage';
+import ProtectedRoute from './components/ProtectedRoute';
+import './App.css';
 
 function App() {
-  // 1. App 컴포넌트가 로그인 상태(session)를 직접 관리하도록 상태 추가
   const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true); // 1. 로딩 상태 추가 (초기값 true)
 
-  // 2. 인증 상태가 바뀔 때마다 session 상태를 업데이트하는 로직 추가
   useEffect(() => {
+    // 2. 최초 세션 확인이 끝나면 로딩 상태를 false로 변경
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      setLoading(false); // 확인 완료
     });
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session);
+      }
+    );
 
     return () => subscription.unsubscribe();
   }, []);
 
+  // 3. 로딩 중이라면 로딩 메시지를 표시하고 라우터를 렌더링하지 않음
+  if (loading) {
+    return <div>애플리케이션 로딩 중...</div>;
+  }
+
+  // 4. 로딩이 끝나면 라우터를 렌더링
   return (
     <BrowserRouter>
       <div className="App">
         <header className="App-header">
           <h1>시니어 소일거리</h1>
-
-          {/* 3. session이 있을 때만 로그아웃 버튼을 표시 */}
           {session && (
-            <button onClick={() => supabase.auth.signOut()}>로그아웃</button>
+            <button onClick={() => supabase.auth.signOut()}>
+              로그아웃
+            </button>
           )}
         </header>
         <main>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
-
-            <Route
-              path="/"
-              element={
+            
+            <Route path="/" element={
                 <ProtectedRoute session={session}>
-                  {" "}
-                  {/* session을 prop으로 전달 */}
-                  <HomePage />
+                    <HomePage />
                 </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/admin"
-              element={
+            } />
+            
+            <Route path="/admin" element={
                 <ProtectedRoute session={session} adminOnly={true}>
-                  {" "}
-                  {/* session을 prop으로 전달 */}
-                  <AdminPage />
+                    <AdminPage />
                 </ProtectedRoute>
-              }
-            />
+            } />
           </Routes>
         </main>
       </div>
