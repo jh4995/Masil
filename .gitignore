@@ -1,2 +1,3 @@
 # Ignore all files and folders under masilProject/폐기/
 masilProject/폐기/
+masilProject/local-backend/.env
