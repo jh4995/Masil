@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import JobForm from '../components/JobForm'; // OpportunityForm -> JobForm
+import OpportunityForm from '../components/OpportunityForm';
 
 export default function AdminPage() {
-  const [jobs, setJobs] = useState([]);
-  const [editingJob, setEditingJob] = useState(null);
+  const [opportunities, setOpportunities] = useState([]);
+  const [editingOpportunity, setEditingOpportunity] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const fetchJobs = async () => {
+  // FastAPI 서버에서 데이터를 가져오도록 수정
+  const fetchOpportunities = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/jobs');
+      const response = await fetch('http://localhost:8000/api/opportunities');
       if (!response.ok) throw new Error('데이터를 불러오는데 실패했습니다.');
       const data = await response.json();
-      setJobs(data);
+      setOpportunities(data);
     } catch (error) {
       console.error('데이터 조회 오류', error);
       alert(error.message);
@@ -22,13 +23,14 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
-    fetchJobs();
+    fetchOpportunities();
   }, []);
 
+  // FastAPI 서버에 삭제를 요청하도록 수정
   const handleDelete = async (job_id) => {
     if (window.confirm('정말 삭제하시겠습니까?')) {
       try {
-        const response = await fetch(`http://localhost:8000/api/jobs/${job_id}`, {
+        const response = await fetch(`http://localhost:8000/api/opportunities/${job_id}`, {
           method: 'DELETE',
         });
         if (!response.ok) {
@@ -36,27 +38,27 @@ export default function AdminPage() {
           throw new Error(errorData.detail || '삭제 실패');
         }
         alert('삭제되었습니다.');
-        fetchJobs(); // 목록 새로고침
+        fetchOpportunities(); // 목록 새로고침
       } catch (error) {
         alert('삭제 오류: ' + error.message);
       }
     }
   };
 
-  const handleEdit = (job) => {
-    setEditingJob(job);
+  const handleEdit = (opportunity) => {
+    setEditingOpportunity(opportunity);
     setShowForm(true);
   };
 
   const handleAddNew = () => {
-    setEditingJob(null);
+    setEditingOpportunity(null);
     setShowForm(true);
   };
 
   const handleFormComplete = () => {
     setShowForm(false);
-    setEditingJob(null);
-    fetchJobs(); // 목록 새로고침
+    setEditingOpportunity(null);
+    fetchOpportunities(); // 목록 새로고침
   };
 
   if (loading) return <p>데이터를 불러오는 중...</p>;
@@ -67,8 +69,8 @@ export default function AdminPage() {
       {!showForm && <button onClick={handleAddNew}>새 소일거리 등록</button>}
 
       {showForm && (
-        <JobForm 
-          editingJob={editingJob}
+        <OpportunityForm 
+          editingOpportunity={editingOpportunity}
           onComplete={handleFormComplete}
         />
       )}
@@ -85,14 +87,14 @@ export default function AdminPage() {
           </tr>
         </thead>
         <tbody>
-          {jobs.map((job) => (
-            <tr key={job.job_id}>
-              <td style={{padding: '8px'}}>{job.title}</td>
-              <td style={{padding: '8px'}}>{job.place}</td>
-              <td style={{padding: '8px'}}>{job.hourly_wage.toLocaleString()}원</td>
+          {opportunities.map((op) => (
+            <tr key={op.job_id}>
+              <td style={{padding: '8px'}}>{op.title}</td>
+              <td style={{padding: '8px'}}>{op.place}</td>
+              <td style={{padding: '8px'}}>{op.hourly_wage.toLocaleString()}원</td>
               <td style={{padding: '8px'}}>
-                <button onClick={() => handleEdit(job)} style={{marginRight: '5px'}}>수정</button>
-                <button onClick={() => handleDelete(job.job_id)}>삭제</button>
+                <button onClick={() => handleEdit(op)} style={{marginRight: '5px'}}>수정</button>
+                <button onClick={() => handleDelete(op.job_id)}>삭제</button>
               </td>
             </tr>
           ))}
