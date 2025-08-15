@@ -41,6 +41,8 @@
   color: #888;
 } */
 
+/* src/App.css */
+
 :root{
   --bg: #ffffff;
   --primary: #223744; /* 진한 네이비(버튼 색) */
@@ -50,10 +52,29 @@
   --gap: 14px;
   --screen-width: 360px;
   --font: 'Noto Sans KR', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  
+  /* ActivityListPage용 추가 변수 */
+  --primary-color: #2C3E50;
+  --accent-color: #BFCC6B;
+  --text-primary: #333;
+  --border-color: #e0e0e0;
 }
 
-*{box-sizing:border-box}
-html,body,#root{height:100%}
+/* ✅ 전역 초기화 강화 */
+*{
+  box-sizing:border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,body,#root{
+  height:100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
 body{
   margin:0;
   font-family:var(--font);
@@ -63,16 +84,31 @@ body{
   color:#1b2b33;
 }
 
-/* 중앙에 모바일 뷰 샘플 (데스크탑에서 모바일 크기 시뮬레이션) */
+/* ✅ 기존 screen 레이아웃 유지 (다른 페이지용) */
 .screen{
   width:100%;
   display:flex;
   justify-content:center;
   padding:28px 0;
 }
+
 .screen > .opening-inner, .screen > .auth-form, .screen > .content{
   width:min(var(--screen-width), 96%);
   margin:0 auto;
+}
+
+/* ✅ ActivityListPage 전용 전체화면 래퍼 클래스 추가 */
+.app-fullscreen {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 /* Header */

@@ -28,7 +28,7 @@ export default function HomePage() {
   );
 }
 */
-
+/*
 // src/pages/HomePage.jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -60,6 +60,73 @@ const HomePage = () => {
           회원가입
         </button>
         <button className="btn-primary" onClick={handleLogin}>
+          로그인
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default HomePage;*/
+
+// src/pages/HomePage.jsx
+
+import React, { useEffect } from 'react'; // ✅ 추가: useEffect import
+import { useNavigate } from 'react-router-dom';
+import './HomePage.css';
+
+const HomePage = () => {
+  const navigate = useNavigate();
+
+  // ✅ 추가: 페이지 진입 시 상단 스크롤
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  const handleSignUp = () => {
+    navigate('/signup');
+  };
+
+  const handleLogin = () => {
+    navigate('/login');
+  };
+
+  return (
+    <div className="homepage-container page-container">
+      <div className="logo-section">
+        <div className="logo-circle">
+          <img 
+            src="/assets/logo/jobits-logo.png" 
+            alt="JOBITS Logo" 
+            className="logo-image"
+            onError={(e) => {
+              // 이미지 로드 실패 시 텍스트로 대체
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'block';
+            }}
+          />
+          <div className="logo-text-fallback" style={{display: 'none'}}>
+            JOBITS
+          </div>
+        </div>
+      </div>
+      
+      <div className="title-section">
+        <h1 className="project-title">잡있으?</h1> 
+        <p className="project-subtitle">JOB ITS</p>
+      </div>
+      
+      <div className="button-section">
+        <button 
+          className="signup-btn btn-secondary"
+          onClick={handleSignUp}
+        >
+          회원가입
+        </button>
+        <button 
+          className="login-btn btn-primary"
+          onClick={handleLogin}
+        >
           로그인
         </button>
       </div>

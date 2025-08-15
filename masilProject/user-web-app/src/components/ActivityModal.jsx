@@ -9,6 +9,11 @@ export default function ActivityModal({ activity, onClose }) {
     }
   };
 
+  const handleApply = () => {
+    console.log('참여 신청:', activity.name);
+    // 참여 신청 로직 구현
+  };
+
   return (
     <div className="modal-backdrop" onClick={handleBackdropClick}>
       <div className="modal-container">
@@ -26,6 +31,12 @@ export default function ActivityModal({ activity, onClose }) {
             <div className="info-item">
               <span className="info-label">일시:</span>
               <span className="info-value">{activity.date}</span>
+            </div>
+            
+            {/* ✅ 추가: 활동시간 정보 표시 */}
+            <div className="info-item">
+              <span className="info-label">활동시간:</span>
+              <span className="info-value time-highlight">{activity.time || '09:00 ~ 18:00'}</span>
             </div>
             
             <div className="info-item">
@@ -51,7 +62,7 @@ export default function ActivityModal({ activity, onClose }) {
           <button className="btn-secondary" onClick={onClose}>
             닫기
           </button>
-          <button className="btn-primary">
+          <button className="btn-primary" onClick={handleApply}> {/* ✅ 추가: 참여 신청 핸들러 */}
             참여 신청
           </button>
         </div>
