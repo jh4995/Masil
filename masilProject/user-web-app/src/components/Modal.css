@@ -1,91 +1,94 @@
 /* src/components/Modal.css */
 
-/* 모달 백드롭 - 블러 효과 */
+/* ✅ 추가: CSS 변수 정의 */
+:root {
+  --primary-color: #2C3E50;
+  --accent-color: #BFCC6B;
+  --background-color: #f5f5f5;
+  --text-primary: #333;
+  --text-secondary: #666;
+  --border-color: #e0e0e0;
+}
+
 .modal-backdrop {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   z-index: 1000;
   padding: 20px;
 }
 
-/* 모달 컨테이너 */
 .modal-container {
   background-color: white;
   border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-  max-width: 400px;
+  max-width: 480px;
   width: 100%;
   max-height: 80vh;
-  overflow: hidden;
-  position: relative;
-  animation: modalSlideIn 0.3s ease-out;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  animation: modalSlideUp 0.3s ease-out;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif; /* ✅ 추가: 폰트 적용 */
 }
 
-/* 모달 애니메이션 */
-@keyframes modalSlideIn {
+@keyframes modalSlideUp {
   from {
     opacity: 0;
-    transform: scale(0.9) translateY(20px);
+    transform: translateY(30px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
-/* 모달 헤더 */
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px 16px;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .modal-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1f2937;
+  font-size: 24px; /* ✅ 수정: 5060세대 고려 폰트 크기 증가 */
+  font-weight: 700;
+  color: var(--primary-color);
   margin: 0;
 }
 
 .modal-close-btn {
   background: none;
   border: none;
-  font-size: 24px;
-  color: #6b7280;
+  font-size: 28px; /* ✅ 수정: 터치 영역 고려 크기 증가 */
+  color: var(--text-secondary);
   cursor: pointer;
-  width: 32px;
-  height: 32px;
+  padding: 8px;
+  border-radius: 50%;
+  width: 44px; /* ✅ 추가: 터치 영역 보장 */
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
 }
 
-.modal-close-btn:hover {
-  background-color: #f3f4f6;
+.modal-close-btn:hover,
+.modal-close-btn:active {
+  background-color: var(--accent-color);
+  color: white;
 }
 
-/* 모달 콘텐츠 */
 .modal-content {
-  padding: 20px 24px;
+  padding: 24px;
 }
 
-/* 활동 정보 그리드 */
 .activity-info-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
   margin-bottom: 24px;
 }
 
@@ -93,170 +96,100 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  background-color: #f9fafb;
-  border-radius: 8px;
+  padding: 14px 0; /* ✅ 수정: 간격 확대 */
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-item:last-child {
+  border-bottom: none;
 }
 
 .info-label {
-  font-weight: 500;
-  color: #374151;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 17px; /* ✅ 수정: 5060세대 고려 폰트 크기 증가 */
+  min-width: 90px; /* ✅ 수정: 라벨 영역 확대 */
 }
 
 .info-value {
-  color: #1f2937;
-  font-weight: 600;
+  font-size: 17px; /* ✅ 수정: 5060세대 고려 폰트 크기 증가 */
+  color: var(--text-secondary);
+  text-align: right;
 }
 
-/* 활동 설명 */
+/* ✅ 추가: 활동시간 하이라이트 스타일 */
+.time-highlight {
+  color: var(--primary-color);
+  font-weight: 600;
+  background-color: rgba(44, 62, 80, 0.1);
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 16px;
+}
+
 .activity-description {
-  margin-top: 20px;
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
 }
 
 .activity-description h3 {
-  font-size: 16px;
+  font-size: 20px; /* ✅ 수정: 5060세대 고려 폰트 크기 증가 */
   font-weight: 600;
-  color: #1f2937;
+  color: var(--primary-color);
   margin: 0 0 12px 0;
 }
 
 .activity-description p {
-  color: #6b7280;
-  line-height: 1.5;
+  font-size: 16px; /* ✅ 수정: 5060세대 고려 폰트 크기 증가 */
+  color: var(--text-secondary);
+  line-height: 1.6;
   margin: 0;
 }
 
-/* 모달 액션 버튼 */
 .modal-actions {
+  padding: 20px 24px 24px;
+  border-top: 1px solid var(--border-color);
   display: flex;
   gap: 12px;
-  padding: 20px 24px;
-  border-top: 1px solid #e5e7eb;
 }
 
-.btn-primary, .btn-secondary {
+.btn-secondary,
+.btn-primary {
   flex: 1;
-  padding: 12px 16px;
+  height: 52px; /* ✅ 수정: 터치 영역 확대 */
+  font-size: 17px; /* ✅ 수정: 5060세대 고려 폰트 크기 증가 */
+  font-weight: 600;
   border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
   border: none;
 }
 
-.btn-primary {
-  background-color: #3b82f6;
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #2563eb;
-}
-
 .btn-secondary {
-  background-color: #f3f4f6;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
 }
 
-.btn-secondary:hover {
-  background-color: #e5e7eb;
-}
-
-/* === 음성 모달 전용 스타일 === */
-.voice-modal {
-  max-width: 320px;
-  text-align: center;
-}
-
-.voice-modal .modal-header {
-  justify-content: flex-end;
-  border-bottom: none;
-  padding-bottom: 8px;
-}
-
-.voice-content {
-  padding: 40px 24px 20px;
-}
-
-.mic-icon-container {
-  position: relative;
-  display: inline-block;
-  margin-bottom: 32px;
-}
-
-.mic-icon {
-  width: 80px;
-  height: 80px;
-  background-color: #34495e;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.btn-primary {
+  background-color: var(--primary-color);
   color: white;
-  position: relative;
-  z-index: 1;
 }
 
-/* 음성 인식 중 펄스 효과 */
-.pulse-ring {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 120px;
-  height: 120px;
-  border: 3px solid #34495e;
-  border-radius: 50%;
-  opacity: 0.6;
-  animation: pulse 2s infinite;
+.btn-secondary:hover,
+.btn-secondary:active {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  color: white;
 }
 
-@keyframes pulse {
-  0% {
-    transform: translate(-50%, -50%) scale(0.8);
-    opacity: 0.6;
-  }
-  50% {
-    transform: translate(-50%, -50%) scale(1.2);
-    opacity: 0.3;
-  }
-  100% {
-    transform: translate(-50%, -50%) scale(1.4);
-    opacity: 0;
-  }
-}
-
-.voice-status h2 {
-  font-size: 20px;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 16px 0;
-}
-
-.transcript {
-  background-color: #f0f9ff;
-  border: 1px solid #bae6fd;
-  border-radius: 8px;
-  padding: 16px;
-  margin-top: 20px;
-}
-
-.transcript p {
-  color: #0369a1;
-  font-style: italic;
-  margin: 0;
-}
-
-.voice-controls {
-  padding: 20px 24px;
-  border-top: 1px solid #e5e7eb;
-}
-
-.voice-action-buttons {
-  display: flex;
-  gap: 12px;
+.btn-primary:hover,
+.btn-primary:active {
+  background-color: var(--accent-color);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(44, 62, 80, 0.15);
 }
 
 /* 모바일 최적화 */
@@ -266,29 +199,65 @@
   }
   
   .modal-container {
-    max-width: 100%;
     max-height: 85vh;
+    border-radius: 12px;
   }
   
-  .modal-header,
-  .modal-content,
-  .modal-actions,
-  .voice-controls {
-    padding-left: 20px;
-    padding-right: 20px;
+  .modal-header {
+    padding: 20px 20px 16px;
   }
   
-  .voice-content {
-    padding: 30px 20px 16px;
+  .modal-title {
+    font-size: 22px;
   }
   
-  .mic-icon {
-    width: 60px;
-    height: 60px;
+  .modal-close-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
   }
   
-  .pulse-ring {
-    width: 100px;
-    height: 100px;
+  .modal-content {
+    padding: 20px;
+  }
+  
+  .info-item {
+    padding: 12px 0;
+  }
+  
+  .info-label {
+    font-size: 16px;
+    min-width: 80px;
+  }
+  
+  .info-value {
+    font-size: 16px;
+  }
+  
+  .time-highlight {
+    padding: 6px 12px;
+    font-size: 15px;
+  }
+  
+  .activity-description {
+    padding: 16px;
+  }
+  
+  .activity-description h3 {
+    font-size: 18px;
+  }
+  
+  .activity-description p {
+    font-size: 15px;
+  }
+  
+  .modal-actions {
+    padding: 16px 20px 20px;
+  }
+  
+  .btn-secondary,
+  .btn-primary {
+    height: 48px;
+    font-size: 16px;
   }
 }

@@ -60,7 +60,9 @@ export default function SignUpForm() {
   );
 }*/
 
-import React, { useState } from 'react';
+// src/components/SignUpForm.jsx
+
+import React, { useState, useEffect } from 'react'; // ✅ 추가: useEffect import
 import { supabase } from '../supabaseClient';
 import './AuthForms.css';
 
@@ -75,13 +77,21 @@ export default function SignUpForm() {
     phone: '',
     password: '',
     confirmPassword: '',
-    interests: []
+    interests: [], 
+    physicalLevel: '',
   });
 
   const interestOptions = [
-    '영어', '일본어', '중국어', '기타 언어', 
-    '활동력/체력', 'IT/기술 활용', '커뮤니케이션', '창의 활동'
+    '돌봄', '보조', '환경미화', '반려동물', '요리', 'IT/기술 활용',
+    '생활·가사', '기술/수리', '이동/동행', '구매/전달', '행정', '긴급/특수'
   ];
+
+  const physicalLevels = ['상', '중', '하'];
+
+  // ✅ 추가: 페이지 진입 시 상단 스크롤
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -96,6 +106,14 @@ export default function SignUpForm() {
       interests: prev.interests.includes(interest)
         ? prev.interests.filter(item => item !== interest)
         : [...prev.interests, interest]
+    }));
+  };
+
+  // ✅ 추가: 체력 수준 선택 핸들러 (단일 선택)
+  const handlePhysicalLevelSelect = (level) => {
+    setFormData(prev => ({
+      ...prev,
+      physicalLevel: level
     }));
   };
 
@@ -124,7 +142,8 @@ export default function SignUpForm() {
           birth_date: formData.birthDate,
           residence: formData.residence,
           work_experience: formData.workExperience,
-          interests: formData.interests
+          interests: formData.interests,
+          physical_level: formData.physicalLevel, 
         }
       }
     });
@@ -176,21 +195,24 @@ export default function SignUpForm() {
             <option value="">성별 선택</option>
             <option value="male">남성</option>
             <option value="female">여성</option>
-            <option value="other">기타</option>
           </select>
           
-          <input
-            type="date"
-            placeholder="생년월일"
-            className="auth-input"
-            value={formData.birthDate}
-            required
-            onChange={(e) => handleInputChange('birthDate', e.target.value)}
-          />
+          {/* ✅ 수정: 생년월일 입력 필드 모바일 최적화 */}
+          <div className="date-input-wrapper">
+            <input
+              type="date"
+              placeholder="연도-월-일"
+              className="auth-input date-input"
+              value={formData.birthDate}
+              required
+              onChange={(e) => handleInputChange('birthDate', e.target.value)}
+            />
+            <label className="date-label">생년월일을 선택해주세요</label>
+          </div>
           
           <input
             type="text"
-            placeholder="거주지"
+            placeholder="지역" 
             className="auth-input"
             value={formData.residence}
             required
@@ -198,7 +220,7 @@ export default function SignUpForm() {
           />
           
           <textarea
-            placeholder="과거 일자리 경험 (선택사항)"
+            placeholder="과거 일했던 경험 (선택사항)"
             className="auth-textarea"
             value={formData.workExperience}
             rows="3"
@@ -206,10 +228,9 @@ export default function SignUpForm() {
           />
         </div>
 
-        {/* 취미 및 관심사 */}
         <div className="form-section">
-          <h3 className="section-title">취미 및 관심사</h3>
-          <p className="section-subtitle">관심 있는 분야를 선택해주세요 (복수 선택 가능)</p>
+          <h3 className="section-title">내가 관심 있는 분야를 선택해주세요!</h3>
+          <p className="section-subtitle">복수 선택 가능</p>
           
           <div className="interest-grid">
             {interestOptions.map((interest) => (
@@ -225,16 +246,34 @@ export default function SignUpForm() {
           </div>
         </div>
 
+        {/* ✅ 추가: 체력 수준 선택 섹션 */}
+        <div className="form-section">
+          <h3 className="section-title">체력 수준</h3>
+          <div className="physical-level-group">
+            {physicalLevels.map((level) => (
+              <button
+                key={level}
+                type="button"
+                className={`physical-btn ${formData.physicalLevel === level ? 'selected' : ''}`}
+                onClick={() => handlePhysicalLevelSelect(level)}
+              >
+                {level}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* 계정 정보 */}
         <div className="form-section">
           <input
             type="tel"
-            placeholder="전화번호 ('-' 제외)"
+            placeholder="전화번호 ('-' 제외)" 
             className="auth-input"
             value={formData.phone}
             required
             onChange={(e) => handleInputChange('phone', e.target.value.replace(/[^0-9]/g, ''))}
           />
+
           
           <input
             type="password"

@@ -13,6 +13,10 @@ export default function ActivityListPage() {
   const [showVoiceModal, setShowVoiceModal] = useState(false);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     // 활동 데이터 로딩 (추후 API 연동)
     const mockActivities = [
       { 
@@ -22,8 +26,9 @@ export default function ActivityListPage() {
         lng: 126.9780, 
         type: 'support',
         date: '8월 27일(수)',
-        location: '서리미엽',
-        duration: '3명'
+        location: '서리마을', 
+        duration: '3명',
+        time: '09:00 ~ 18:00' 
       },
       { 
         id: 2, 
@@ -33,7 +38,8 @@ export default function ActivityListPage() {
         type: 'culture',
         date: '8월 28일(목)',
         location: '강남구',
-        duration: '5명'
+        duration: '5명',
+        time: '09:00 ~ 18:00' 
       },
       { 
         id: 3, 
@@ -43,7 +49,8 @@ export default function ActivityListPage() {
         type: 'exercise',
         date: '8월 29일(금)',
         location: '마포구',
-        duration: '10명'
+        duration: '10명',
+        time: '09:00 ~ 18:00' 
       }
     ];
     
@@ -63,17 +70,17 @@ export default function ActivityListPage() {
   };
 
   return (
-    <div className="activity-list-container">
+    <div className="activity-page-container">
       {/* 헤더 */}
       <div className="activity-header">
         <h1 className="activity-title">추천 활동 목록</h1>
       </div>
 
-      {/* 전체 화면 지도 영역 */}
-      <div className="fullscreen-map-container">
+      {/* 지도 영역 */}
+      <div className="map-container">
         {loading ? (
           <div className="map-loading">
-            <p>지도를 불러오는 중...</p>
+            <p>사용자 맞춤 활동이 표시됩니다</p>
           </div>
         ) : (
           <MapComponent 
@@ -83,10 +90,13 @@ export default function ActivityListPage() {
         )}
       </div>
 
-      {/* 하단 네비게이션 바 */}
-      <BottomNavBar onMicClick={handleMicClick} />
+      {/* 하단 네비게이션 */}
+      <BottomNavBar 
+        onMicClick={handleMicClick}
+        initialSelected="" 
+      />
 
-      {/* 활동 상세 모달 */}
+      {/* 모달들 */}
       {selectedActivity && (
         <ActivityModal 
           activity={selectedActivity} 
@@ -94,7 +104,6 @@ export default function ActivityListPage() {
         />
       )}
 
-      {/* 음성 입력 모달 */}
       {showVoiceModal && (
         <VoiceModal onClose={closeModals} />
       )}
