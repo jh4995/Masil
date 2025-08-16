@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # AI-1.py
 # Usage:
-#   python enrich_factpack_llm.py factpack_top10.json -o factpack_enriched.json -k 3 # Top-K : 후보 수
-# BE단에서 받은 factpack.v1.1 을 AI-2 factpack_enriched.json 으로 변환
+#   python ai_1_producer.py sample/ai_1_input.json -o sample/ai_1_output.json -k 3
+# BE단에서 받은 factpack.v1.1형식의 be_input.json을 ai_1_output.json 으로 변환
 
 import os, json, math, hashlib, argparse
 from typing import Any, Dict, List, Tuple
@@ -11,6 +11,10 @@ from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# window
+# os.environ["OPENAI_API_KEY_1"] = "수정필요"  # 여기에 API 키 입력
+# client = OpenAI(api_key=os.environ["OPENAI_API_KEY_1"])
 
 MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")  # 가성비형 모델 기본값
 client = OpenAI()  # 환경변수 OPENAI_API_KEY 사용
@@ -35,26 +39,131 @@ def parse_work_days(bits: str) -> List[str]:
 
 def compute_time_overlap(availability_json: Dict[str, List[List[str]]],
                          work_days_bits: str, start_time: str, end_time: str) -> float:
-    cand_days = set(parse_work_days(work_days_bits))
-    if not cand_days: return 0.0
+    """
+    Backward-compatible wrapper that returns the original metric
+    (= job_norm: overlap / (daily shift minutes × #job-days)).
+    Now supports overnight shifts.
+    """
+    m = compute_time_overlap_metrics(availability_json, work_days_bits, start_time, end_time)
+    return m["job_norm"]
 
+
+"""
+time_overlap (= job_norm, 기존 index):
+겹친 분 / (하루 근무분 x 근무 요일 수).
+→ “잡 전체 스케줄 대비 주간 적합도”.
+
+time_overlap_intersection_norm:
+겹친 분 / (하루 근무분 x 실제로 겹칠 수 있는 요일 수).
+→ “실제 교집합 요일 기준 적합도”.
+
+user_fit_ratio:
+겹친 분 / (사용자 주간 총 가용 분).
+→ “사용자 입장에서 내 시간이 얼마나 커버되나”.
+
+time_fit(합성):
+geometric_mean(job_norm, intersection_norm, user_fit_ratio)
+→ 세 지표를 균형 있게 반영(어느 하나가 낮으면 전체가 내려가는 특성)
+"""
+def compute_time_overlap_metrics(availability_json: Dict[str, List[List[str]]],
+                                 work_days_bits: str, start_time: str, end_time: str) -> Dict[str, float]:
+    """
+    Returns multiple time-fit metrics:
+      - job_norm: overlapped minutes / (job daily minutes * number of job days)
+      - intersection_norm: overlapped minutes / (job daily minutes * number of days where either the start day
+                            or the following day has user availability; i.e., days that can actually overlap)
+      - user_fit_ratio: overlapped minutes / (user total available minutes across the week)
+      - time_fit: composite score combining the three (geometric mean for balance)
+
+    Supports overnight shifts (e.g., 22:00–02:00), counting overlap against the start day and the next day.
+    """
+    cand_days = parse_work_days(work_days_bits)
+    if not cand_days:
+        return {"job_norm": 0.0, "intersection_norm": 0.0, "user_fit_ratio": 0.0, "time_fit": 0.0}
+
+    # Candidate shift minutes (per day)
     c_start = parse_time_to_min(start_time)
     c_end = parse_time_to_min(end_time)
+    overnight = False
+    if c_end <= c_start:
+        # Treat as overnight: end on next day
+        c_end += 24*60
+        overnight = True
+    day_sched = c_end - c_start  # per day
 
-    if c_end <= c_start: return 0.0
-    total_sched, total_overlap = 0, 0
-    for day in cand_days:
-        day_sched = (c_end - c_start)
-        total_sched += day_sched
-        if day not in availability_json: continue
-        day_overlap = 0
-        for slot in availability_json[day]:
+    # Precompute user availability per weekday in minutes and total
+    def slots_minutes(slots: List[List[str]]) -> int:
+        total = 0
+        for slot in slots or []:
             s = parse_time_to_min(slot[0][:5]); e = parse_time_to_min(slot[1][:5])
-            if e <= s: continue
-            day_overlap += interval_overlap_min(c_start, c_end, s, e)
-        total_overlap += min(day_overlap, day_sched)
-    if total_sched == 0: return 0.0
-    return round(total_overlap / total_sched, 2)
+            if e <= s:
+                # Skip user overnight slots for now; recommend splitting into two slots if needed
+                continue
+            total += (e - s)
+        return total
+
+    user_total_min = 0
+    user_min_by_day = {}
+    for day in WEEKDAYS:
+        mins = slots_minutes(availability_json.get(day, []))
+        user_min_by_day[day] = mins
+        user_total_min += mins
+
+    # Overlap for a shift that STARTS on `day`
+    def overlap_with_day(day: str) -> int:
+        olap = 0
+        # Segment A: [c_start, min(c_end, 1440)) on `day`
+        segA_start, segA_end = c_start, min(c_end, 1440)
+        if segA_end > segA_start:
+            for slot in availability_json.get(day, []):
+                s = parse_time_to_min(slot[0][:5]); e = parse_time_to_min(slot[1][:5])
+                if e > s:
+                    olap += interval_overlap_min(segA_start, segA_end, s, e)
+        # Segment B: if overnight, [0, c_end-1440) on next day
+        if overnight and c_end > 1440:
+            next_idx = (WEEKDAYS.index(day) + 1) % 7
+            next_day = WEEKDAYS[next_idx]
+            segB_start, segB_end = 0, c_end - 1440
+            if segB_end > segB_start:
+                for slot in availability_json.get(next_day, []):
+                    s = parse_time_to_min(slot[0][:5]); e = parse_time_to_min(slot[1][:5])
+                    if e > s:
+                        olap += interval_overlap_min(segB_start, segB_end, s, e)
+        return olap
+
+    overlap_min = 0
+    intersection_days = 0
+    for day in cand_days:
+        overlap_d = overlap_with_day(day)
+        # Cap per-day overlap by the daily schedule minutes
+        overlap_min += min(overlap_d, day_sched)
+        # Count "intersection-eligible" days
+        next_day = WEEKDAYS[(WEEKDAYS.index(day)+1) % 7]
+        if user_min_by_day.get(day, 0) > 0 or (overnight and user_min_by_day.get(next_day, 0) > 0):
+            intersection_days += 1
+
+    job_total_min = day_sched * len(cand_days)
+
+    # Metrics
+    job_norm = (overlap_min / job_total_min) if job_total_min > 0 else 0.0
+    inter_den = (day_sched * max(intersection_days, 1))
+    intersection_norm = (overlap_min / inter_den) if inter_den > 0 else 0.0
+    user_fit_ratio = (overlap_min / user_total_min) if user_total_min > 0 else 0.0
+
+    # Composite: geometric mean with small epsilon to avoid zero-locking
+    eps = 1e-6
+    time_fit = ((job_norm+eps) * (intersection_norm+eps) * (user_fit_ratio+eps)) ** (1/3) - eps
+
+    return {
+        "job_norm": round(job_norm, 2),
+        "intersection_norm": round(intersection_norm, 2),
+        "user_fit_ratio": round(user_fit_ratio, 2),
+        "time_fit": round(time_fit, 2),
+        "overlap_min": int(round(overlap_min)),
+        "job_total_min": int(round(job_total_min)),
+        "user_total_min": int(round(user_total_min)),
+    }
+
 
 def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     R = 6371.0088
@@ -167,7 +276,6 @@ def llm_enrich_batch(cands_batch: List[Dict[str, Any]], user_pref_keywords: List
     return out  # 반드시 dict
 
 
-
 def llm_his_short(work_history: str) -> str:
     """
     JSON 모드 강제 호환: messages 안에 소문자 'json'을 명시하고,
@@ -246,7 +354,9 @@ def enrich_factpack_with_llm(data: Dict[str, Any], top_k: int = 20, batch_size: 
             travel_min  = estimate_travel_min(distance_km)
 
         # 시간 겹침
-        time_ov = compute_time_overlap(availability_json, work_bits, start_time, end_time)
+        time_metrics = compute_time_overlap_metrics(availability_json, work_bits, start_time, end_time)
+        time_ov = time_metrics['job_norm']  # 기존 time_overlap 역호환 유지
+
 
         # 임금 정규화
         region_list = by_place.get(c.get("place",""), []) or cands
@@ -273,6 +383,10 @@ def enrich_factpack_with_llm(data: Dict[str, Any], top_k: int = 20, batch_size: 
             "desc": desc,
             "sim_interest": round(float(c.get("sim_interest", 0.0)), 2),
             "time_overlap": time_ov,
+            "time_overlap_job_norm": time_metrics.get("job_norm"),
+            "time_overlap_intersection_norm": time_metrics.get("intersection_norm"),
+            "user_fit_ratio": time_metrics.get("user_fit_ratio"),
+            "time_fit": time_metrics.get("time_fit"),
             "hourly_wage": pay,
             "pay_norm": pay_norm,
             "distance_km": distance_km,
@@ -316,10 +430,16 @@ def enrich_factpack_with_llm(data: Dict[str, Any], top_k: int = 20, batch_size: 
 # ---------------- CLI ----------------
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("input_json", help="factpack.v1.1 JSON path")
-    ap.add_argument("-o","--output_json", default="factpack_enriched.json")
-    ap.add_argument("-k","--top_k", type=int, default=20)
-    ap.add_argument("-b","--batch_size", type=int, default=20, help="LLM batch size")
+    ap.add_argument(
+        "input_json",
+        nargs="?",
+        default=os.path.join("sample", "be_input.json"),
+        help="factpack.v1.1 JSON path (default: sample/be_input.json)"
+    )    
+    ap.add_argument("-k","--top_k", type=int, default=3)
+    ap.add_argument("-b","--batch_size", type=int, default=5, help="LLM batch size")
+    ap.add_argument("-o","--output_json", default="ai_1_output.json",
+                help="저장할 출력 파일 경로")
     args = ap.parse_args()
 
     with open(args.input_json, "r", encoding="utf-8") as f:
