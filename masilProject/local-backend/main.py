@@ -1,14 +1,15 @@
 import os
-import requests
 import traceback
-from fastapi import FastAPI, HTTPException, Query
-from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
-from openai import OpenAI
-from supabase import create_client, Client
-from pydantic import BaseModel, Field
 from typing import List, Optional
 from uuid import UUID
+
+import requests
+from dotenv import load_dotenv
+from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
+from openai import OpenAI
+from pydantic import BaseModel, Field
+from supabase import Client, create_client
 
 # --- 초기화 ---
 load_dotenv()
@@ -64,10 +65,42 @@ def create_job(job: Job):
         raise HTTPException(status_code=500, detail=f"데이터 생성 실패: {str(e)}")
 
 @app.get("/api/jobs")
-def get_all_jobs():
+def get_jobs(
+    view: Optional[str] = 'admin', # 👈 view 파라미터 추가, 기본값 'admin'
+    latitude: Optional[float] = None,
+    longitude: Optional[float] = None,
+    radius_km: float = 5.0,
+    limit: int = 100
+):
+    """
+    쿼리 파라미터에 따라 주변 일자리 또는 모든 일자리를 반환합니다.
+    view 파라미터에 따라 반환되는 필드가 달라집니다.
+    """
     try:
-        response = supabase.from_("jobs").select("*").order("created_at", desc=True).execute()
-        return response.data
+        # 1. 주변 일자리 검색 (사용자용)
+        if latitude is not None and longitude is not None:
+            response = supabase.rpc('nearby_jobs', {
+                'user_lat': latitude,
+                'user_lon': longitude,
+                'radius_meters': radius_km * 1000,
+                'result_limit': limit
+            }).execute()
+            return response.data
+
+        # 2. 모든 일자리 검색 (관리자용 vs 지도용)
+        else:
+            # 지도에 표시할 최소 정보
+            if view == 'map':
+                print("--- 지도용 최소 정보 조회 실행 ---")
+                select_query = "job_id, title, job_latitude, job_longitude"
+            # 관리자 페이지에 표시할 전체 정보 (기본값)
+            else: # view == 'admin'
+                print("--- 관리자용 전체 정보 조회 실행 ---")
+                select_query = "*"
+
+            response = supabase.from_("jobs").select(select_query).order("created_at", desc=True).limit(limit).execute()
+            return response.data
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"데이터 조회 실패: {str(e)}")
 
