@@ -1,3 +1,4 @@
+/*
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { supabase } from './supabaseClient';
@@ -73,7 +74,6 @@ function App() {
     </BrowserRouter>
   );
 }
-
 
 export default App;*/
 
@@ -168,4 +168,3 @@ function App() {
 }
 
 export default App;
-
