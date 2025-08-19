@@ -77,8 +77,12 @@ export default function SignUpForm() {
     phone: '',
     password: '',
     confirmPassword: '',
-    interests: [], 
+    interests: [],
+    dayOfWeek: [], 
     physicalLevel: '',
+    insideOutsideLevel: '',
+    movingLevel: '',
+    timeLevel: [], // ✅ 수정: 배열로 초기화하여 중복선택 가능하게 설정
   });
 
   const interestOptions = [
@@ -86,7 +90,12 @@ export default function SignUpForm() {
     '사무 도우미', '행사 안내·접수', '매장 보조', '포장·라벨 붙이기'
   ];
 
+  const dayOptions = ['월', '화', '수', '목', '금', '토', '일'];
+
   const physicalLevels = ['상', '중', '하'];
+  const insideOutsideLevels = ['실내', '실외', '무관'];
+  const movingLevels = ['15분', '30분', '60분'];
+  const timeLevels = ['오전', '오후', '저녁']
 
   // ✅ 추가: 페이지 진입 시 상단 스크롤
   useEffect(() => {
@@ -109,11 +118,44 @@ export default function SignUpForm() {
     }));
   };
 
+  const handleDayToggle = (day) => {
+    setFormData(prev => ({
+      ...prev,
+      dayOfWeek: prev.dayOfWeek.includes(day)
+        ? prev.dayOfWeek.filter(item => item !== day)
+        : [...prev.dayOfWeek, day]
+    }));
+  };
+
   // ✅ 추가: 체력 수준 선택 핸들러 (단일 선택)
   const handlePhysicalLevelSelect = (level) => {
     setFormData(prev => ({
       ...prev,
       physicalLevel: level
+    }));
+  };
+
+  const handleInsideOutsideLevelSelect = (level) => {
+    setFormData(prev => ({
+      ...prev,
+      insideOutsideLevel: level
+    }));
+  };
+
+  const handleMovingLevelSelect = (level) => {
+    setFormData(prev => ({
+      ...prev,
+      movingLevel: level
+    }));
+  };
+
+  // ✅ 수정: 시간대 선택 핸들러 (중복선택 가능하도록 변경)
+  const handleTimeLevelToggle = (level) => {
+    setFormData(prev => ({
+      ...prev,
+      timeLevel: prev.timeLevel.includes(level)
+        ? prev.timeLevel.filter(item => item !== level)
+        : [...prev.timeLevel, level]
     }));
   };
 
@@ -143,7 +185,11 @@ export default function SignUpForm() {
           residence: formData.residence,
           work_experience: formData.workExperience,
           interests: formData.interests,
+          day_of_week: formData.dayOfWeek,
           physical_level: formData.physicalLevel, 
+          inside_outside_level: formData.insideOutsideLevel,
+          moving_level: formData.movingLevel,
+          time_level: formData.timeLevel,
         }
       }
     });
@@ -228,26 +274,12 @@ export default function SignUpForm() {
           />
         </div>
 
-        <div className="form-section">
-          <h3 className="section-title">내가 관심 있는 분야를 선택해주세요!</h3>
-          <p className="section-subtitle">복수 선택 가능</p>
-          
-          <div className="interest-grid">
-            {interestOptions.map((interest) => (
-              <button
-                key={interest}
-                type="button"
-                className={`interest-btn ${formData.interests.includes(interest) ? 'selected' : ''}`}
-                onClick={() => handleInterestToggle(interest)}
-              >
-                {interest}
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* ✅ 추가: 구분선 */}
+        <div className="section-divider"></div>
 
         {/* ✅ 추가: 체력 수준 선택 섹션 */}
         <div className="form-section">
+          <h2 className="section-title">1단계 - 기본 설정</h2>
           <h3 className="section-title">체력 수준</h3>
           <div className="physical-level-group">
             {physicalLevels.map((level) => (
@@ -263,8 +295,102 @@ export default function SignUpForm() {
           </div>
         </div>
 
+        {/* ✅ 추가: 실내/실외 선호 선택 섹션 */}
+        <div className="form-section">
+          <h3 className="section-title">실내/실외 선호</h3>
+          <div className="inside-outside-level-group">
+            {insideOutsideLevels.map((level) => (
+              <button
+                key={level}
+                type="button"
+                className={`inside-outside-btn ${formData.insideOutsideLevel === level ? 'selected' : ''}`}
+                onClick={() => handleInsideOutsideLevelSelect(level)}
+              >
+                {level}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ✅ 추가: 이동 가능 시간 선택 섹션 */}
+        <div className="form-section">
+          <h3 className="section-title">이동 가능 시간</h3>
+          <div className="moving-level-group">
+            {movingLevels.map((level) => (
+              <button
+                key={level}
+                type="button"
+                className={`moving-btn ${formData.movingLevel === level ? 'selected' : ''}`}
+                onClick={() => handleMovingLevelSelect(level)}
+              >
+                {level}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ✅ 추가: 구분선 */}
+        <div className="section-divider"></div>
+
+        <div className="form-section">
+          <h2 className="section-title">2단계 - 가능 시간</h2>
+
+          {/* ✅ 수정: 요일 버튼 스타일 변경 (7개 균등 배치) */}
+          <div className="day-group">
+            {dayOptions.map((day) => (
+              <button
+                key={day}
+                type="button"
+                className={`day-btn ${formData.dayOfWeek.includes(day) ? 'selected' : ''}`}
+                onClick={() => handleDayToggle(day)}
+              >
+                {day}
+              </button>
+            ))}
+          </div>
+
+          {/* ✅ 수정: 시간대 버튼 스타일 변경 (3개 균등 배치) 및 중복선택 가능 */}
+          <div className="time-level-group">
+            {timeLevels.map((level) => (
+              <button
+                key={level}
+                type="button"
+                className={`time-btn ${formData.timeLevel.includes(level) ? 'selected' : ''}`}
+                onClick={() => handleTimeLevelToggle(level)}
+              >
+                {level}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ✅ 추가: 구분선 */}
+        <div className="section-divider"></div>
+
+        <div className="form-section">
+          <h2 className="section-title">3단계 - 내가 할 수 있는 일</h2>
+          <p className="section-subtitle">복수 선택 가능</p>
+
+          <div className="interest-grid">
+            {interestOptions.map((interest) => (
+              <button
+                key={interest}
+                type="button"
+                className={`interest-btn ${formData.interests.includes(interest) ? 'selected' : ''}`}
+                onClick={() => handleInterestToggle(interest)}
+              >
+                {interest}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ✅ 추가: 구분선 */}
+        <div className="section-divider"></div>
+
         {/* 계정 정보 */}
         <div className="form-section">
+          <h2 className="section-title">계정 정보</h2>
           <input
             type="tel"
             placeholder="전화번호 ('-' 제외)" 

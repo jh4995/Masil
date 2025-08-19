@@ -1,5 +1,5 @@
 // src/services/ApiService.js
-const API_BASE_URL = 'https://jobisbe.ngrok.app/api';
+const API_BASE_URL = 'http://192.168.68.82:8000/api';
 
 class ApiService {
   
