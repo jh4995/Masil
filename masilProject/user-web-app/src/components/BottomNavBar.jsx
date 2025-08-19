@@ -3,15 +3,16 @@
 import React, { useState } from 'react';
 import './BottomNavBar.css';
 
-// ✅ 수정: initialSelected prop 추가하여 초기 선택 상태 제거
-export default function BottomNavBar({ onMicClick, initialSelected = '' }) {
-  const [selectedTab, setSelectedTab] = useState(initialSelected); // ✅ 수정: 기본값을 빈 문자열로 설정
+export default function BottomNavBar({ onMicClick, onJobListClick, initialSelected = '' }) {
+  const [selectedTab, setSelectedTab] = useState(initialSelected);
 
   const handleTabClick = (tabName) => {
     setSelectedTab(tabName);
     
     // 특정 탭 클릭 시 콜백 실행
-    if (tabName === 'voice' && onMicClick) {
+    if (tabName === 'list' && onJobListClick) {
+      onJobListClick();
+    } else if (tabName === 'voice' && onMicClick) {
       onMicClick();
     }
   };

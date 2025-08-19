@@ -1,5 +1,5 @@
 // src/services/ApiService.js
-const API_BASE_URL = 'http://192.168.68.82:8000/api';
+const API_BASE_URL = 'https://jobisbe.ngrok.app/api';
 
 class ApiService {
   
@@ -26,9 +26,54 @@ class ApiService {
     }
   }
 
+  // 🤖 AI 추천 일거리 조회 (Job있으 버튼용 - main.py의 /api/recommend 엔드포인트)
+  static async getRecommendedJobs(userId, query = "사용자에게 맞는 일거리를 추천해주세요") {
+    try {
+      console.log('🔍 추천 요청 데이터:', { user_id: userId, query: query });
+      
+      const requestBody = {
+        user_id: userId,
+        query: query
+      };
+      
+      console.log('📤 요청 URL:', `${API_BASE_URL}/recommend`);
+      console.log('📤 요청 Body:', JSON.stringify(requestBody));
+      
+      const response = await fetch(`${API_BASE_URL}/recommend`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+      
+      console.log('📥 응답 상태:', response.status, response.statusText);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ 서버 에러 응답:', errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+      
+      const data = await response.json();
+      console.log('🤖 AI 추천 원본 응답:', data);
+      
+      // 응답 데이터 구조 확인 및 정리
+      const jobs = data.jobs || [];
+      console.log('📊 추천 일거리 개수:', jobs.length);
+      
+      return data; // { answer: "...", jobs: [...] } 형태
+    } catch (error) {
+      console.error('❌ AI 추천 일거리 조회 실패:', error);
+      throw error;
+    }
+  }
+
   // 📋 특정 일거리 상세 정보 조회
   static async getJobById(jobId) {
     try {
+      console.log(`📋 일거리 ${jobId} 상세정보 조회 요청`);
+      
       const response = await fetch(`${API_BASE_URL}/jobs/${jobId}`, {
         method: 'GET',
         headers: {
@@ -36,8 +81,12 @@ class ApiService {
         },
       });
       
+      console.log(`📥 응답 상태 (${jobId}):`, response.status, response.statusText);
+      
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error(`❌ 서버 에러 응답 (${jobId}):`, errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
       
       const data = await response.json();

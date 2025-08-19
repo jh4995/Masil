@@ -65,7 +65,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import ApiService from '../services/ApiService';
 import JobDetailModal from './JobDetailModal';
 
-export default function MapComponent() {
+export default function MapComponent({ isRecommendationMode = false, userId = null, onRecommendationComplete = null }) {
   const [jobs, setJobs] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -169,7 +169,7 @@ export default function MapComponent() {
     }
   }, [userLocation]);
 
-  // 📊 일거리 데이터 조회 (사용자 위치 기반)
+  // 📊 일거리 데이터 조회
   useEffect(() => {
     const fetchJobs = async () => {
       if (!mapLoaded || !naverMap || !userLocation) return;
@@ -178,18 +178,30 @@ export default function MapComponent() {
         setIsLoading(true);
         setError(null);
         
-        console.log('📊 사용자 위치 기반 일거리 데이터 조회 시작');
-        const jobsData = await ApiService.getJobsForMap(
-          userLocation.latitude, 
-          userLocation.longitude, 
-          10, // 10km 반경
-          50  // 최대 50개
-        );
+        let jobsData;
+        
+        if (isRecommendationMode && userId) {
+          // 🤖 추천 모드: AI 추천 API 호출
+          console.log('🤖 AI 추천 일거리 데이터 조회 시작 - 사용자 ID:', userId);
+          
+          const recommendationResult = await ApiService.getRecommendedJobs(userId);
+          jobsData = recommendationResult.jobs || [];
+          
+          console.log('✅ AI 추천 일거리 데이터 조회 완료:', jobsData.length + '개');
+          
+          // 상위 컴포넌트에 추천 완료 알림
+          if (onRecommendationComplete) {
+            onRecommendationComplete(jobsData.length);
+          }
+        } else {
+          // 🗺️ 일반 모드: 기본 지도 데이터 조회
+          console.log('📊 일반 모드 일거리 데이터 조회 시작');
+          jobsData = await ApiService.getJobsForMap();
+          console.log('✅ 일거리 데이터 조회 완료:', jobsData.length + '개');
+        }
         
         setJobs(jobsData);
         createMarkersOnMap(jobsData);
-        
-        console.log('✅ 일거리 데이터 조회 및 마커 생성 완료:', jobsData.length + '개');
         
       } catch (error) {
         console.error('❌ 일거리 데이터 조회 실패:', error);
@@ -200,7 +212,7 @@ export default function MapComponent() {
     };
 
     fetchJobs();
-  }, [mapLoaded, naverMap, userLocation]);
+  }, [mapLoaded, naverMap, userLocation, isRecommendationMode, userId]);
 
   // 🎯 지도에 핀 마커 생성
   const createMarkersOnMap = (jobsData) => {
@@ -210,6 +222,9 @@ export default function MapComponent() {
 
     jobsData.forEach((job) => {
       const markerPosition = new window.naver.maps.LatLng(job.job_latitude, job.job_longitude);
+      
+      // 추천 모드일 때는 빨간색, 일반 모드일 때는 녹색
+      const markerColor = isRecommendationMode ? '#FF6B6B' : '#BFCC6B';
       
       const marker = new window.naver.maps.Marker({
         position: markerPosition,
@@ -228,9 +243,9 @@ export default function MapComponent() {
                 
                 <!-- 메인 핀 모양 -->
                 <path d="M20 2C11.163 2 4 9.163 4 18c0 12 16 28 16 28s16-16 16-28c0-8.837-7.163-16-16-16z" 
-                      fill="#BFCC6B" 
+                      fill="${markerColor}" 
                       stroke="white" 
-                      stroke-width="2"/>2C3E50
+                      stroke-width="2"/>
                 
                 <!-- 중앙 원 -->
                 <circle cx="20" cy="18" r="8" fill="white"/>
@@ -250,8 +265,13 @@ export default function MapComponent() {
         try {
           console.log(`🔍 일거리 ${job.job_id} 상세정보 조회 시작`);
           
-          // 상세정보 조회
           const jobDetail = await ApiService.getJobById(job.job_id);
+          
+          // 추천 모드인 경우 reason 추가
+          if (isRecommendationMode && job.reason) {
+            jobDetail.reason = job.reason;
+          }
+          
           setSelectedJob(jobDetail);
           setShowModal(true);
 
@@ -313,11 +333,13 @@ export default function MapComponent() {
           zIndex: 10
         }}>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🗺️</div>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>
+              {isRecommendationMode ? '🤖' : '🗺️'}
+            </div>
             <div style={{ marginBottom: '8px' }}>
               {!userLocation ? '위치 정보를 가져오는 중...' : 
                !mapLoaded ? '지도를 불러오는 중...' : 
-               '주변 일거리를 찾는 중...'}
+               isRecommendationMode ? 'AI 추천 일거리를 찾는 중...' : '주변 일거리를 찾는 중...'}
             </div>
             <div style={{ fontSize: '16px', color: '#5A6C7D' }}>잠시만 기다려주세요</div>
           </div>
@@ -352,6 +374,7 @@ export default function MapComponent() {
         job={selectedJob}
         isVisible={showModal}
         onClose={handleCloseModal}
+        showRecommendationReason={isRecommendationMode}
       />
     </div>
   );
