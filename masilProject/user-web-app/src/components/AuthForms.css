@@ -532,3 +532,111 @@
     font-size: 16px;
   }
 }
+
+/* 시간표 스타일 - AuthForms.css에 추가할 내용 */
+
+.schedule-table {
+  margin: 20px 0;
+  overflow-x: auto;
+}
+
+.time-schedule-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.time-schedule-table th,
+.time-schedule-table td {
+  padding: 12px 8px;
+  text-align: center;
+  border: 1px solid #e0e0e0;
+}
+
+.time-schedule-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+}
+
+.day-header {
+  background-color: #f1f3f5;
+  min-width: 50px;
+}
+
+.time-label {
+  background-color: #f8f9fa;
+  font-weight: 500;
+  font-size: 13px;
+  color: #555;
+  min-width: 60px;
+}
+
+.time-cell {
+  padding: 8px;
+}
+
+.time-slot-btn {
+  width: 32px;
+  height: 32px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.time-slot-btn:hover {
+  border-color: #007bff;
+  background-color: #f0f8ff;
+}
+
+.time-slot-btn.selected {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: white;
+  font-weight: bold;
+}
+
+.time-slot-btn.selected:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .schedule-table {
+    margin: 15px -10px;
+  }
+  
+  .time-schedule-table th,
+  .time-schedule-table td {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+  
+  .time-slot-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+  
+  .day-header {
+    min-width: 40px;
+  }
+  
+  .time-label {
+    min-width: 50px;
+    font-size: 12px;
+  }
+}
