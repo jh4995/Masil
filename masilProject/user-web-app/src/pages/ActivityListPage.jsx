@@ -14,8 +14,9 @@ export default function ActivityListPage() {
   const [isRecommendationMode, setIsRecommendationMode] = useState(false);
   const [selectedTab, setSelectedTab] = useState('');
   const [recommendationCount, setRecommendationCount] = useState(0);
+  const [recommendedJobs, setRecommendedJobs] = useState([]); // 추천된 일자리 목록 저장
   
-  // 사용자 ID
+  // 임시 사용자 ID (실제 구현에서는 로그인 정보에서 가져와야 함)
   const userId = "f97c17bf-c304-48df-aa54-d77fa23f96ee";
 
   useEffect(() => {
@@ -23,7 +24,7 @@ export default function ActivityListPage() {
   }, []);
 
   useEffect(() => {
-    // 활동 데이터 로딩
+    // 활동 데이터 로딩 (추후 API 연동)
     const mockActivities = [
       { 
         id: 1, 
@@ -89,9 +90,16 @@ export default function ActivityListPage() {
   };
 
   // 추천 완료 핸들러
-  const handleRecommendationComplete = (count) => {
+  const handleRecommendationComplete = (count, jobs = []) => {
     setRecommendationCount(count);
+    setRecommendedJobs(jobs); // 추천된 일자리 목록 저장
     console.log(`✅ AI 추천 완료: ${count}개의 일거리 발견`);
+    console.log('📊 추천된 일자리 목록:', jobs);
+  };
+
+  // 음성 모달에 전달할 excludeJobIds 생성
+  const getExcludeJobIds = () => {
+    return recommendedJobs.map(job => job.job_id);
   };
 
   return (
@@ -146,7 +154,10 @@ export default function ActivityListPage() {
 
       {/* 음성 모달 */}
       {showVoiceModal && (
-        <VoiceModal onClose={handleCloseVoiceModal} />
+        <VoiceModal 
+          onClose={handleCloseVoiceModal} 
+          excludeJobIds={getExcludeJobIds()}
+        />
       )}
     </div>
   );

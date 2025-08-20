@@ -189,9 +189,9 @@ export default function MapComponent({ isRecommendationMode = false, userId = nu
           
           console.log('✅ AI 추천 일거리 데이터 조회 완료:', jobsData.length + '개');
           
-          // 상위 컴포넌트에 추천 완료 알림
+          // 상위 컴포넌트에 추천 완료 알림 (jobs 데이터도 함께 전달)
           if (onRecommendationComplete) {
-            onRecommendationComplete(jobsData.length);
+            onRecommendationComplete(jobsData.length, jobsData);
           }
         } else {
           // 🗺️ 일반 모드: 기본 지도 데이터 조회
@@ -224,7 +224,7 @@ export default function MapComponent({ isRecommendationMode = false, userId = nu
       const markerPosition = new window.naver.maps.LatLng(job.job_latitude, job.job_longitude);
       
       // 추천 모드일 때는 빨간색, 일반 모드일 때는 녹색
-      const markerColor = isRecommendationMode ? '#FF6B6B' : '#BFCC6B';
+      const markerColor = isRecommendationMode ? '#FF6B6B' : '#0028db82';
       
       const marker = new window.naver.maps.Marker({
         position: markerPosition,
@@ -239,7 +239,7 @@ export default function MapComponent({ isRecommendationMode = false, userId = nu
             " onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
               <svg width="40" height="50" viewBox="0 0 40 50" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <!-- 핀 드롭 섀도우 -->
-                <ellipse cx="20" cy="47" rx="8" ry="3" fill="rgba(44, 62, 80, 0.2)"/>
+                <ellipse cx="20" cy="47" rx="8" ry="3" fill="rgba(1, 7, 13, 0.2)"/>
                 
                 <!-- 메인 핀 모양 -->
                 <path d="M20 2C11.163 2 4 9.163 4 18c0 12 16 28 16 28s16-16 16-28c0-8.837-7.163-16-16-16z" 
