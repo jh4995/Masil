@@ -61,7 +61,7 @@ export default function VoiceModal({ onClose, excludeJobIds = [] }) {
 
       return true;
     } catch (error) {
-      console.error('❌ 마이크 접근 실패:', error);
+      console.error('⚠ 마이크 접근 실패:', error);
       setError('마이크 접근 권한이 필요합니다.');
       return false;
     }
@@ -99,7 +99,7 @@ export default function VoiceModal({ onClose, excludeJobIds = [] }) {
 
   const processAudioRecording = async (audioBlob) => {
     try {
-      console.log('📤 음성 데이터 처리 시작...');
+      console.log('🔤 음성 데이터 처리 시작...');
       
       // FormData 생성
       const formData = new FormData();
@@ -137,7 +137,7 @@ export default function VoiceModal({ onClose, excludeJobIds = [] }) {
       }
 
     } catch (error) {
-      console.error('❌ 음성 처리 실패:', error);
+      console.error('⚠ 음성 처리 실패:', error);
       setError('음성 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
       setPhase('ready');
     }
@@ -217,9 +217,23 @@ export default function VoiceModal({ onClose, excludeJobIds = [] }) {
     );
   };
 
+  // 추천 인사이트 메시지 생성
+  const getRecommendationInsight = () => {
+    if (!recommendedJob) return null;
+    
+    const insights = [
+      "당신의 관심사와 경험에 기반한 맞춤 추천입니다.",
+      "현재 시장에서 수요가 높은 분야의 일자리입니다.",
+      "당신의 스킬과 잘 매치되는 포지션입니다.",
+      "성장 가능성이 높은 직무로 추천드립니다."
+    ];
+    
+    return insights[Math.floor(Math.random() * insights.length)];
+  };
+
   return (
     <div className="voice-modal-backdrop" onClick={handleBackdropClick}>
-      <div className="voice-modal-container">
+      <div className={`voice-modal-container ${phase === 'recommendation' ? 'recommendation-mode' : ''}`}>
         {/* 모달 헤더 */}
         <div className="voice-modal-header">
           <button 
@@ -232,7 +246,7 @@ export default function VoiceModal({ onClose, excludeJobIds = [] }) {
         </div>
 
         {/* 음성 입력 메인 영역 */}
-        <div className="voice-content">
+        <div className={`voice-content ${phase === 'recommendation' ? 'recommendation-mode' : ''}`}>
           {/* 추천 결과 단계가 아닐 때만 마이크 아이콘 영역 표시 */}
           {phase !== 'recommendation' && (
             <div className={`voice-icon-container ${phase}`}>
@@ -246,7 +260,14 @@ export default function VoiceModal({ onClose, excludeJobIds = [] }) {
 
           {/* 상태 텍스트 */}
           <div className="voice-status">
-            <h2 className="voice-status-title">{getStatusText()}</h2>
+            <h2 className={`voice-status-title ${phase === 'recommendation' ? 'recommendation-title' : ''}`}>
+              {phase === 'recommendation' && (
+                <div className="recommendation-success-icon">
+                  ✓
+                </div>
+              )}
+              {getStatusText()}
+            </h2>
             
             {/* 에러 메시지 표시 */}
             {error && (
@@ -269,8 +290,9 @@ export default function VoiceModal({ onClose, excludeJobIds = [] }) {
               <div className="recommendation-box">
                 <h3 className="recommendation-job-title">{recommendedJob.title}</h3>
                 <p className="recommendation-job-description">
-                  {recommendedJob.description || '상세 내용은 지도에서 확인하실 수 있습니다.'}
+                  {recommendedJob.reason || '상세 내용은 지도에서 확인하실 수 있습니다.'}
                 </p>
+                
               </div>
             ) : (
               // 음성 인식 결과 표시
