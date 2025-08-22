@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ApiService from '../services/ApiService';
 import './VoiceModal.css';
 
-export default function VoiceModal({ onClose, excludeJobIds = [] }) {
+export default function VoiceModal({ onClose, excludeJobIds = [], userId }) {
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [phase, setPhase] = useState('ready'); // 'ready', 'recording', 'transcribing', 'processing', 'complete', 'recommendation'
@@ -73,6 +73,12 @@ export default function VoiceModal({ onClose, excludeJobIds = [] }) {
   };
 
   const startRecording = async () => {
+    // 사용자 ID 체크
+    if (!userId) {
+      setError('사용자 정보를 확인할 수 없습니다. 다시 로그인해주세요.');
+      return;
+    }
+
     setError(null);
     
     const initialized = await initializeMediaRecorder();
@@ -83,7 +89,7 @@ export default function VoiceModal({ onClose, excludeJobIds = [] }) {
     setTranscript('');
     
     mediaRecorderRef.current.start();
-    console.log('🎤 음성 녹음 시작...');
+    console.log('🎤 음성 녹음 시작... (사용자 ID:', userId, ')');
   };
 
   const stopRecording = () => {
@@ -143,13 +149,13 @@ export default function VoiceModal({ onClose, excludeJobIds = [] }) {
   // 🆕 추천 처리 함수 (기존 processAudioRecording에서 분리)
   const processRecommendation = async (transcribedText) => {
     try {
-      console.log('🤖 일거리 추천 처리 시작...');
+      console.log('🤖 일거리 추천 처리 시작... (사용자 ID:', userId, ')');
       setPhase('processing');
       
       // FormData 생성 (추천용)
       const formData = new FormData();
       formData.append('audio_file', audioDataRef.current, 'recording.webm');
-      formData.append('user_id', 'f97c17bf-c304-48df-aa54-d77fa23f96ee'); // 임시 사용자 ID
+      formData.append('user_id', userId); // 동적 사용자 ID 사용
       
       // excludeJobIds가 있다면 추가
       if (excludeJobIds && excludeJobIds.length > 0) {
@@ -277,6 +283,43 @@ export default function VoiceModal({ onClose, excludeJobIds = [] }) {
     
     return insights[Math.floor(Math.random() * insights.length)];
   };
+
+  // 사용자 ID가 없는 경우 에러 표시
+  if (!userId) {
+    return (
+      <div className="voice-modal-backdrop" onClick={handleBackdropClick}>
+        <div className="voice-modal-container">
+          <div className="voice-modal-header">
+            <button 
+              className="voice-modal-close" 
+              onClick={onClose}
+              aria-label="음성 모달 닫기"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="voice-content">
+            <div style={{
+              textAlign: 'center',
+              padding: '40px 20px',
+              color: '#e74c3c'
+            }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
+              <h2>사용자 정보 오류</h2>
+              <p>로그인 정보를 확인할 수 없습니다.<br />다시 로그인해주세요.</p>
+              <button 
+                className="voice-close-btn" 
+                onClick={onClose}
+                style={{ marginTop: '20px' }}
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="voice-modal-backdrop" onClick={handleBackdropClick}>
