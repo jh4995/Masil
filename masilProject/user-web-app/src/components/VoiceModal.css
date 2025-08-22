@@ -14,6 +14,8 @@
   --voice-orange-hover: #e55a2b; /* 오렌지 호버 색상 */
   --voice-success-green: #27AE60; /* 성공 색상 */
   --voice-success-light: #E8F8F0; /* 성공 배경색 */
+  --voice-transcribing-color: #3498DB; /* 텍스트 변환 중 색상 (파란색) */
+  --voice-transcribing-light: #EBF3FD; /* 텍스트 변환 중 배경색 */
 }
 
 /* Pretendard 폰트 적용 */
@@ -181,6 +183,25 @@
   }
 }
 
+/* 🆕 텍스트 변환 중 상태 - 파란색 */
+.voice-icon-container.transcribing .voice-icon {
+  background: var(--voice-transcribing-color) !important;
+  color: white !important;
+  box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3) !important;
+  animation: voiceTextPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes voiceTextPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.03);
+    opacity: 0.8;
+  }
+}
+
 /* 처리 중 상태 - 기본 색상으로 복원 */
 .voice-icon-container.processing .voice-icon,
 .voice-icon-container.complete .voice-icon {
@@ -283,19 +304,62 @@
   }
 }
 
+/* 🆕 추천 결과 컨테이너 (텍스트 + 추천 박스) */
+.recommendation-result-container {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 🆕 추천 단계에서의 텍스트 박스 (더 작고 간결하게) */
+.voice-transcript.recommendation-transcript {
+  background: var(--voice-transcribing-light);
+  border: 1px solid var(--voice-transcribing-color);
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-top: 0;
+  animation: transcriptFadeIn 0.5s ease-out;
+}
+
+.voice-transcript.recommendation-transcript p {
+  font-size: 15px;
+  color: var(--voice-transcribing-color);
+  margin: 0;
+  line-height: 1.4;
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* 기존 음성 인식 결과 텍스트 박스 (transcribing 단계용) */
 .voice-transcript {
-  background: #f8f9fa;
+  background: var(--voice-transcribing-light);
+  border: 2px solid var(--voice-transcribing-color);
   padding: 20px;
   border-radius: 16px;
   margin-top: 24px;
+  animation: transcriptFadeIn 0.5s ease-out;
+}
+
+@keyframes transcriptFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .voice-transcript p {
   font-size: 18px;
-  color: var(--voice-text-secondary);
+  color: var(--voice-transcribing-color);
   margin: 0;
   line-height: 1.5;
   font-style: italic;
+  font-weight: 600;
 }
 
 /* 오류 메시지 스타일 */
@@ -320,9 +384,8 @@
   border: 2px solid var(--voice-success-green);
   border-radius: 20px;
   padding: 28px 24px;
-  margin-top: 8px;
+  margin-top: 0; /* recommendation-result-container에서 gap으로 관리 */
   width: 100%;
-  max-width: 340px;
   box-shadow: 
     0 8px 25px rgba(39, 174, 96, 0.15),
     0 3px 10px rgba(39, 174, 96, 0.1);
@@ -620,9 +683,16 @@
     font-size: 17px;
   }
   
+  .recommendation-result-container {
+    max-width: 280px;
+  }
+  
+  .voice-transcript.recommendation-transcript p {
+    font-size: 14px;
+  }
+  
   .recommendation-box {
     padding: 24px 20px;
-    max-width: 280px;
   }
   
   .recommendation-job-title {
@@ -698,9 +768,20 @@
     font-size: 16px;
   }
   
+  .recommendation-result-container {
+    max-width: 260px;
+  }
+  
+  .voice-transcript.recommendation-transcript {
+    padding: 10px 14px;
+  }
+  
+  .voice-transcript.recommendation-transcript p {
+    font-size: 13px;
+  }
+  
   .recommendation-box {
     padding: 20px 16px;
-    max-width: 260px;
   }
   
   .recommendation-job-title {
