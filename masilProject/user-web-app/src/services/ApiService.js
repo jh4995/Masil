@@ -237,6 +237,41 @@ class ApiService {
     }
   }
 
+  // 🆕 사용자가 지원한 일자리 목록 조회 
+  // users.py의 profile-history 엔드포인트: user_job_reviews와 jobs 테이블 조인으로 한 번에 모든 정보 제공
+  // 반환 데이터: title, hourly_wage, place, address, start_time, end_time 등 포함
+  static async getUserAppliedJobs(userId) {
+    try {
+      console.log(`📋 사용자 ${userId} 지원한 일자리 목록 조회 요청 (조인 쿼리 사용)`);
+      
+      const response = await fetch(`${API_BASE_URL}/${userId}/profile-history`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      console.log(`📥 지원한 일자리 목록 응답 상태 (${userId}):`, response.status, response.statusText);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ 지원한 일자리 목록 에러 응답 (${userId}):`, errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+      
+      const data = await response.json();
+      console.log(`✅ 사용자 ${userId} 지원한 일자리 목록 조회 성공 (조인된 데이터):`, data);
+      console.log('📊 조인으로 가져온 필드들:', data.length > 0 ? Object.keys(data[0]) : '데이터 없음');
+      
+      // 백엔드에서 user_job_reviews와 jobs를 조인하여 가져온 완전한 데이터 반환
+      // 추가 API 호출 없이 모든 필요한 정보를 포함
+      return data;
+    } catch (error) {
+      console.error(`❌ 사용자 ${userId} 지원한 일자리 목록 조회 실패:`, error);
+      throw error;
+    }
+  }
+
   // 🌍 사용자 위치 기반 주변 일거리 조회
   static async getNearbyJobs(latitude, longitude, radiusKm = 5) {
     try {
