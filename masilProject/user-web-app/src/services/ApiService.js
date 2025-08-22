@@ -172,11 +172,16 @@ class ApiService {
   }
 
   // 📋 특정 일거리 상세 정보 조회
-  static async getJobById(jobId) {
+  static async getJobById(jobId, userId = null) {
     try {
       console.log(`📋 일거리 ${jobId} 상세정보 조회 요청`);
       
-      const response = await fetch(`${API_BASE_URL}/jobs/${jobId}`, {
+      // userId가 있는 경우 쿼리 파라미터로 추가
+      const url = userId 
+        ? `${API_BASE_URL}/jobs/${jobId}?user_id=${userId}`
+        : `${API_BASE_URL}/jobs/${jobId}`;
+      
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -196,6 +201,38 @@ class ApiService {
       return data;
     } catch (error) {
       console.error(`❌ 일거리 ${jobId} 상세정보 조회 실패:`, error);
+      throw error;
+    }
+  }
+
+  // 🆕 일거리 지원 신청 메서드
+  static async applyForJob(jobId, userId) {
+    try {
+      console.log(`📝 일거리 ${jobId} 지원 신청 요청 (사용자: ${userId})`);
+      
+      const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/apply`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: userId
+        }),
+      });
+      
+      console.log(`📥 지원 신청 응답 상태 (${jobId}):`, response.status, response.statusText);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error(`❌ 지원 신청 에러 응답 (${jobId}):`, errorData);
+        throw new Error(errorData.detail || '지원 신청에 실패했습니다.');
+      }
+      
+      const data = await response.json();
+      console.log(`✅ 일거리 ${jobId} 지원 신청 성공:`, data);
+      return data;
+    } catch (error) {
+      console.error(`❌ 일거리 ${jobId} 지원 신청 실패:`, error);
       throw error;
     }
   }
