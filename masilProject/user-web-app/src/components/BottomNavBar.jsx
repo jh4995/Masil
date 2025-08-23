@@ -8,7 +8,9 @@ export default function BottomNavBar({
   onJobListClick, 
   onProfileClick, 
   initialSelected = '',
-  showTooltips = false // ✅ 새로운 props: 툴팁 표시 여부
+  showTooltips = false, // ✅ 새로운 props: 툴팁 표시 여부
+  isJobListActive = false, // 🆕 Job있으 버튼 활성화 상태
+  isVoiceActive = false // 🆕 마이크 버튼 활성화 상태
 }) {
   const [selectedTab, setSelectedTab] = useState(initialSelected);
 
@@ -28,7 +30,7 @@ export default function BottomNavBar({
   return (
     <div className="bottom-nav">
       <button 
-        className={`nav-item ${selectedTab === 'list' ? 'active' : ''}`}
+        className={`nav-item ${selectedTab === 'list' || isJobListActive ? 'active' : ''}`}
         onClick={() => handleTabClick('list')}
       >
         {/* ✅ 새로운 기능: AI 추천 툴팁 */}
@@ -46,7 +48,7 @@ export default function BottomNavBar({
       </button>
       
       <button 
-        className={`nav-item ${selectedTab === 'voice' ? 'active' : ''}`}
+        className={`nav-item ${selectedTab === 'voice' || isVoiceActive ? 'active' : ''}`}
         onClick={() => handleTabClick('voice')}
       >
         {/* ✅ 새로운 기능: 음성 추천 툴팁 */}

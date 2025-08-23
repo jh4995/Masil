@@ -3,11 +3,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import ApiService from '../services/ApiService';
 import './VoiceModal.css';
 
-export default function VoiceModal({ onClose, excludeJobIds = [], userId }) {
+export default function VoiceModal({ onClose, excludeJobIds = [], userId, onVoiceRecommendationComplete }) {
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [phase, setPhase] = useState('ready'); // 'ready', 'recording', 'transcribing', 'processing', 'complete', 'recommendation'
   const [recommendedJob, setRecommendedJob] = useState(null);
+  const [recommendedJobs, setRecommendedJobs] = useState([]); // 전체 추천 일자리 목록 저장
   const [error, setError] = useState(null);
   
   const mediaRecorderRef = useRef(null);
@@ -179,6 +180,7 @@ export default function VoiceModal({ onClose, excludeJobIds = [], userId }) {
       if (result.jobs && result.jobs.length > 0) {
         const topJob = result.jobs[0]; // 첫 번째 추천 일거리
         setRecommendedJob(topJob);
+        setRecommendedJobs(result.jobs); // 🆕 전체 추천 일자리 목록 저장
         setPhase('recommendation');
         // ⚠️ 주의: transcript는 여기서 덮어쓰지 않고 유지합니다
       } else {
@@ -198,6 +200,7 @@ export default function VoiceModal({ onClose, excludeJobIds = [], userId }) {
     setTranscript('');
     setIsRecording(false);
     setRecommendedJob(null);
+    setRecommendedJobs([]); // 🆕 추천 목록도 초기화
     setError(null);
     audioDataRef.current = null;
     
@@ -205,6 +208,20 @@ export default function VoiceModal({ onClose, excludeJobIds = [], userId }) {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
     }
+  };
+
+  // 🆕 완료 버튼 클릭 핸들러 - 추천받은 일자리들을 지도에 표시
+  const handleComplete = () => {
+    console.log('🎯 음성 추천 완료 - 추천받은 일자리들을 지도에 표시');
+    console.log('📊 추천받은 일자리 목록:', recommendedJobs);
+    
+    // 상위 컴포넌트(ActivityListPage)에 추천 완료 알림
+    if (onVoiceRecommendationComplete && recommendedJobs.length > 0) {
+      onVoiceRecommendationComplete(recommendedJobs);
+    }
+    
+    // 모달 닫기
+    onClose();
   };
 
   useEffect(() => {
@@ -423,7 +440,10 @@ export default function VoiceModal({ onClose, excludeJobIds = [], userId }) {
               <button className="voice-retry-btn" onClick={resetVoice}>
                 다시 시도
               </button>
-              <button className="voice-close-btn" onClick={onClose}>
+              <button 
+                className="voice-close-btn" 
+                onClick={phase === 'recommendation' ? handleComplete : onClose}
+              >
                 완료
               </button>
             </div>

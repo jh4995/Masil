@@ -1,6 +1,7 @@
 // src/pages/MyProfilePage.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../supabaseClient'; // 🆕 Supabase 클라이언트 import 추가
 import ApiService from '../services/ApiService';
 import './MyProfilePage.css';
 
@@ -13,6 +14,7 @@ export default function MyProfilePage({ session }) {
   const [profileError, setProfileError] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false); // 🆕 로그아웃 상태
   const navigate = useNavigate();
   
   const userId = session?.user?.id;
@@ -222,7 +224,7 @@ export default function MyProfilePage({ session }) {
       }
     }
 
-    console.log('📝 변환된 프로필 데이터 (백엔드 스키마 맞춤):', profileData);
+    console.log('📤 변환된 프로필 데이터 (백엔드 스키마 맞춤):', profileData);
     
     return profileData;
   };
@@ -340,6 +342,54 @@ export default function MyProfilePage({ session }) {
       setProfileError(errorMessage);
     } finally {
       setSaving(false);
+    }
+  };
+
+  // 🆕 로그아웃 핸들러
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      
+      // 확인 대화상자
+      const confirmLogout = window.confirm('정말 로그아웃 하시겠습니까?');
+      if (!confirmLogout) {
+        setIsLoggingOut(false);
+        return;
+      }
+      
+      console.log('🚪 로그아웃 시작...');
+      
+      // 🗑️ localStorage 정리 (저장된 추천 상태들 모두 삭제)
+      const STORAGE_KEYS = [
+        'jobis_ai_recommendation_mode',
+        'jobis_ai_recommended_jobs', 
+        'jobis_voice_recommendation_mode',
+        'jobis_voice_recommended_jobs',
+        'jobis_recommendation_count'
+      ];
+      
+      STORAGE_KEYS.forEach(key => {
+        localStorage.removeItem(key);
+      });
+      console.log('🗑️ 저장된 추천 상태 모두 정리 완료');
+      
+      // 🚪 Supabase 로그아웃
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('❌ 로그아웃 실패:', error);
+        alert('로그아웃 중 오류가 발생했습니다. 다시 시도해주세요.');
+      } else {
+        console.log('✅ 로그아웃 성공');
+        // 로그아웃 성공 시 자동으로 App.jsx에서 라우팅 처리됨
+        alert('성공적으로 로그아웃되었습니다.');
+      }
+      
+    } catch (error) {
+      console.error('❌ 로그아웃 처리 실패:', error);
+      alert('로그아웃 중 오류가 발생했습니다.');
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
@@ -757,6 +807,27 @@ export default function MyProfilePage({ session }) {
             })}
           </div>
         )}
+
+        {/* 🆕 로그아웃 버튼 섹션 */}
+        <div className="profile-logout-section">
+          <div className="profile-section-divider"></div>
+          <button 
+            className="profile-logout-btn"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+          >
+            {isLoggingOut ? (
+              <>
+                <div className="logout-spinner"></div>
+                로그아웃 중...
+              </>
+            ) : (
+              <>
+                로그아웃
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );
