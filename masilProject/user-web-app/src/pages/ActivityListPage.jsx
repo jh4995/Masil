@@ -16,7 +16,7 @@ export default function ActivityListPage({ session }) {
   const [isRecommendationMode, setIsRecommendationMode] = useState(false);
   const [selectedTab, setSelectedTab] = useState('');
   const [recommendationCount, setRecommendationCount] = useState(0);
-  const [recommendedJobs, setRecommendedJobs] = useState([]); // 추천된 일자리 목록 저장
+  const [recommendedJobs, setRecommendedJobs] = useState([]); // 추천된 소일거리 목록 저장
   
   // 🆕 음성 추천 모드 상태 추가
   const [isVoiceRecommendationMode, setIsVoiceRecommendationMode] = useState(false);
@@ -203,7 +203,7 @@ export default function ActivityListPage({ session }) {
   // 🆕 음성 추천 완료 핸들러
   const handleVoiceRecommendationComplete = (voiceJobs) => {
     console.log('🎯 음성 추천 완료 - 지도 모드 전환');
-    console.log('📊 음성 추천받은 일자리들:', voiceJobs);
+    console.log('📊 음성 추천받은 소일거리들:', voiceJobs);
     
     // 음성 추천 모드로 전환
     setIsVoiceRecommendationMode(true);
@@ -274,9 +274,9 @@ export default function ActivityListPage({ session }) {
   // 추천 완료 핸들러 - 🆕 상태 저장 추가
   const handleRecommendationComplete = (count, jobs = []) => {
     setRecommendationCount(count);
-    setRecommendedJobs(jobs); // 추천된 일자리 목록 저장
-    console.log(`✅ AI 추천 완료: ${count}개의 일거리 발견 (사용자 ID: ${userId})`);
-    console.log('📊 추천된 일자리 목록:', jobs);
+    setRecommendedJobs(jobs); // 추천된 소일거리 목록 저장
+    console.log(`✅ AI 추천 완료: ${count}개의 소일거리 발견 (사용자 ID: ${userId})`);
+    console.log('📊 추천된 소일거리 목록:', jobs);
     
     // 🆕 상태 저장
     saveAIRecommendationState(jobs, count);
@@ -290,11 +290,11 @@ export default function ActivityListPage({ session }) {
   // 헤더 제목 결정 로직
   const getHeaderTitle = () => {
     if (isVoiceRecommendationMode) {
-      return `🎤 음성 추천 일거리 (${voiceRecommendedJobs.length}개)`;
+      return `🎤 음성 추천 소일거리 (${voiceRecommendedJobs.length}개)`;
     } else if (isRecommendationMode) {
-      return `AI 추천 일거리${recommendationCount > 0 ? ` (${recommendationCount}개)` : ''}`;
+      return `AI 추천 소일거리${recommendationCount > 0 ? ` (${recommendationCount}개)` : ''}`;
     } else {
-      return '추천 활동 목록';
+      return '추천 소일거리 목록';
     }
   };
 
@@ -332,7 +332,6 @@ export default function ActivityListPage({ session }) {
             margin: '8px 0 0 0',
             textAlign: 'center'
           }}>
-            {isVoiceRecommendationMode ? '🎤' : '🤖'} {session?.user?.user_metadata?.nickname || '사용자'}님 맞춤 추천 결과입니다
           </p>
         )}
       </div>
@@ -344,7 +343,7 @@ export default function ActivityListPage({ session }) {
             <div style={{ textAlign: 'center', color: '#2C3E50' }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>🗺️</div>
               <p style={{ fontSize: '18px', fontWeight: '600', margin: '0' }}>
-                사용자 맞춤 활동이 표시됩니다
+                사용자 맞춤 소일거리가 표시됩니다
               </p>
             </div>
           </div>
@@ -356,7 +355,7 @@ export default function ActivityListPage({ session }) {
             onRecommendationComplete={handleRecommendationComplete}
             isVoiceRecommendationMode={isVoiceRecommendationMode}
             voiceRecommendedJobs={voiceRecommendedJobs}
-            recommendedJobs={recommendedJobs} // 🆕 AI 추천 일자리 목록 전달
+            recommendedJobs={recommendedJobs} // 🆕 AI 추천 소일거리 목록 전달
           />
         )}
       </div>

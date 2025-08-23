@@ -70,8 +70,8 @@ export default function MapComponent({
   userId = null, 
   onRecommendationComplete = null,
   isVoiceRecommendationMode = false, // 🆕 음성 추천 모드
-  voiceRecommendedJobs = [], // 🆕 음성 추천받은 일자리 목록
-  recommendedJobs = [] // 🆕 AI 추천받은 일자리 목록 (상위에서 전달)
+  voiceRecommendedJobs = [], // 🆕 음성 추천받은 소일거리 목록
+  recommendedJobs = [] // 🆕 AI 추천받은 소일거리 목록 (상위에서 전달)
 }) {
   const [jobs, setJobs] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
@@ -190,10 +190,10 @@ export default function MapComponent({
         return;
       }
       
-      // 🆕 AI 추천 모드이면서 이미 추천받은 일자리가 있는 경우 저장된 데이터 사용
+      // 🆕 AI 추천 모드이면서 이미 추천받은 소일거리가 있는 경우 저장된 데이터 사용
       if (isRecommendationMode && recommendedJobs.length > 0) {
         console.log('🤖 AI 추천 모드 - 외부 API 호출 없이 저장된 데이터 사용');
-        console.log('📊 사용할 저장된 AI 추천 일자리:', recommendedJobs.length + '개');
+        console.log('📊 사용할 저장된 AI 추천 소일거리:', recommendedJobs.length + '개');
         setJobs(recommendedJobs);
         setIsLoading(false);
         createMarkersOnMap(recommendedJobs);
@@ -208,12 +208,12 @@ export default function MapComponent({
         
         if (isRecommendationMode && userId) {
           // 🤖 추천 모드: AI 추천 API 호출 (저장된 데이터가 없는 경우만)
-          console.log('🤖 AI 추천 일거리 데이터 조회 시작 - 사용자 ID:', userId);
+          console.log('🤖 AI 추천 소일거리 데이터 조회 시작 - 사용자 ID:', userId);
           
           const recommendationResult = await ApiService.getRecommendedJobs(userId);
           jobsData = recommendationResult.jobs || [];
-          
-          console.log('✅ AI 추천 일거리 데이터 조회 완료:', jobsData.length + '개');
+
+          console.log('✅ AI 추천 소일거리 데이터 조회 완료:', jobsData.length + '개');
           
           // 상위 컴포넌트에 추천 완료 알림 (jobs 데이터도 함께 전달)
           if (onRecommendationComplete) {
@@ -221,17 +221,17 @@ export default function MapComponent({
           }
         } else {
           // 🗺️ 일반 모드: 기본 지도 데이터 조회
-          console.log('📊 일반 모드 일거리 데이터 조회 시작');
+          console.log('📊 일반 모드 소일거리 데이터 조회 시작');
           jobsData = await ApiService.getJobsForMap();
-          console.log('✅ 일거리 데이터 조회 완료:', jobsData.length + '개');
+          console.log('✅ 소일거리 데이터 조회 완료:', jobsData.length + '개');
         }
         
         setJobs(jobsData);
         createMarkersOnMap(jobsData);
         
       } catch (error) {
-        console.error('❌ 일거리 데이터 조회 실패:', error);
-        setError('일거리 정보를 불러올 수 없습니다.');
+        console.error('❌ 소일거리 데이터 조회 실패:', error);
+        setError('소일거리 정보를 불러올 수 없습니다.');
       } finally {
         setIsLoading(false);
       }
@@ -253,13 +253,13 @@ export default function MapComponent({
       let markerColor;
       if (isVoiceRecommendationMode) {
         // 음성 추천 모드: 보라색
-        markerColor = '#8B5CF6'; // 보라색
+        markerColor = '#5833aeff'; // 보라색
       } else if (isRecommendationMode) {
         // AI 추천 모드: 빨간색
-        markerColor = '#EF4444'; // 빨간색
+        markerColor = '#ff0000d1'; // 빨간색
       } else {
         // 일반 모드: 파란색
-        markerColor = '#3B82F6'; // 파란색
+        markerColor = '#001affff'; // 파란색
       }
       
       const marker = new window.naver.maps.Marker({
@@ -295,7 +295,7 @@ export default function MapComponent({
       // 📍 마커 클릭 이벤트 - 상세정보 조회 및 모달 표시
       window.naver.maps.Event.addListener(marker, 'click', async () => {
         try {
-          console.log(`📍 일거리 ${job.job_id} 상세정보 조회 시작`);
+          console.log(`📍 소일거리 ${job.job_id} 상세정보 조회 시작`);
           
           const jobDetail = await ApiService.getJobById(job.job_id);
           
@@ -334,9 +334,9 @@ export default function MapComponent({
   const getLoadingMessage = () => {
     if (!userLocation) return '위치 정보를 가져오는 중...';
     if (!mapLoaded) return '지도를 불러오는 중...';
-    if (isVoiceRecommendationMode) return '🎤 음성 추천 일거리 표시 중...';
-    if (isRecommendationMode) return 'AI 추천 일거리를 찾는 중...';
-    return '주변 일거리를 찾는 중...';
+    if (isVoiceRecommendationMode) return '🎤 음성 추천 소일거리 표시 중...';
+    if (isRecommendationMode) return 'AI 추천 소일거리를 찾는 중...';
+    return '주변 소일거리를 찾는 중...';
   };
 
   return (

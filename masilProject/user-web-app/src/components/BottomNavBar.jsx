@@ -44,7 +44,7 @@ export default function BottomNavBar({
               <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
             </svg>
           </div>
-          <span className="nav-label">Job있으</span>
+          <span className="nav-label">AI 추천</span>
       </button>
       
       <button 
@@ -63,7 +63,7 @@ export default function BottomNavBar({
               <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
             </svg>
           </div>
-          <span className="nav-label">마이크</span>
+          <span className="nav-label">음성 추천</span>
       </button>
       
       <button 

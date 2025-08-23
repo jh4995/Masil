@@ -18,16 +18,16 @@ class ApiService {
       }
       
       const data = await response.json();
-      console.log('🗺️ 지도용 일거리 데이터 조회 성공:', data);
+      console.log('🗺️ 지도용 소일거리 데이터 조회 성공:', data);
       return data;
     } catch (error) {
-      console.error('❌ 지도용 일거리 데이터 조회 실패:', error);
+      console.error('❌ 지도용 소일거리 데이터 조회 실패:', error);
       throw error;
     }
   }
 
-  // 🤖 AI 추천 일거리 조회 (Job있으 버튼용 - main.py의 /api/recommend 엔드포인트)
-  static async getRecommendedJobs(userId, query = "사용자에게 맞는 일거리를 추천해주세요") {
+  // 🤖 AI 추천 소일거리 조회 (Job있으 버튼용 - main.py의 /api/recommend 엔드포인트)
+  static async getRecommendedJobs(userId, query = "사용자에게 맞는 소일거리를 추천해주세요") {
     try {
       console.log('🔍 추천 요청 데이터:', { user_id: userId, query: query });
       
@@ -61,11 +61,11 @@ class ApiService {
       
       // 응답 데이터 구조 확인 및 정리
       const jobs = data.jobs || [];
-      console.log('📊 추천 일거리 개수:', jobs.length);
-      
-      // 각 일거리의 reason 필드 확인
+      console.log('📊 추천 소일거리 개수:', jobs.length);
+
+      // 각 소일거리의 reason 필드 확인
       jobs.forEach((job, index) => {
-        console.log(`📝 일거리 ${index + 1} (ID: ${job.job_id}):`, {
+        console.log(`📝 소일거리 ${index + 1} (ID: ${job.job_id}):`, {
           title: job.title,
           hasReason: !!job.reason,
           reasonType: typeof job.reason,
@@ -76,14 +76,14 @@ class ApiService {
       
       return data; // { answer: "...", jobs: [...] } 형태
     } catch (error) {
-      console.error('❌ AI 추천 일거리 조회 실패:', error);
-      
-      // 폴백: 기본 일거리 목록 반환
-      console.log('🔄 폴백 모드: 기본 일거리 목록 조회');
+      console.error('❌ AI 추천 소일거리 조회 실패:', error);
+
+      // 폴백: 기본 소일거리 목록 반환
+      console.log('🔄 폴백 모드: 기본 소일거리 목록 조회');
       try {
         const fallbackJobs = await this.getJobsForMap();
         return {
-          answer: "추천 시스템에 일시적 문제가 있어 기본 일거리 목록을 표시합니다.",
+          answer: "추천 시스템에 일시적 문제가 있어 기본 소일거리 목록을 표시합니다.",
           jobs: fallbackJobs.slice(0, 10) // 최대 10개만
         };
       } catch (fallbackError) {
@@ -166,16 +166,16 @@ class ApiService {
       
       return data; // { answer: "...", jobs: [...] } 형태
     } catch (error) {
-      console.error('❌ 음성 추천 일거리 조회 실패:', error);
+      console.error('❌ 음성 추천 소일거리 조회 실패:', error);
       throw error;
     }
   }
 
-  // 📋 특정 일거리 상세 정보 조회
+  // 📋 특정 소일거리 상세 정보 조회
   static async getJobById(jobId, userId = null) {
     try {
-      console.log(`📋 일거리 ${jobId} 상세정보 조회 요청`);
-      
+      console.log(`📋 소일거리 ${jobId} 상세정보 조회 요청`);
+
       // userId가 있는 경우 쿼리 파라미터로 추가
       const url = userId 
         ? `${API_BASE_URL}/jobs/${jobId}?user_id=${userId}`
@@ -197,19 +197,19 @@ class ApiService {
       }
       
       const data = await response.json();
-      console.log(`📋 일거리 ${jobId} 상세정보 조회 성공:`, data);
+      console.log(`📋 소일거리 ${jobId} 상세정보 조회 성공:`, data);
       return data;
     } catch (error) {
-      console.error(`❌ 일거리 ${jobId} 상세정보 조회 실패:`, error);
+      console.error(`❌ 소일거리 ${jobId} 상세정보 조회 실패:`, error);
       throw error;
     }
   }
 
-  // 🆕 일거리 지원 신청 메서드
+  // 🆕 소일거리 지원 신청 메서드
   static async applyForJob(jobId, userId) {
     try {
-      console.log(`📝 일거리 ${jobId} 지원 신청 요청 (사용자: ${userId})`);
-      
+      console.log(`📝 소일거리 ${jobId} 지원 신청 요청 (사용자: ${userId})`);
+
       const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/apply`, {
         method: 'POST',
         headers: {
@@ -229,20 +229,20 @@ class ApiService {
       }
       
       const data = await response.json();
-      console.log(`✅ 일거리 ${jobId} 지원 신청 성공:`, data);
+      console.log(`✅ 소일거리 ${jobId} 지원 신청 성공:`, data);
       return data;
     } catch (error) {
-      console.error(`❌ 일거리 ${jobId} 지원 신청 실패:`, error);
+      console.error(`❌ 소일거리 ${jobId} 지원 신청 실패:`, error);
       throw error;
     }
   }
 
-  // 🆕 사용자가 지원한 일자리 목록 조회 
+  // 🆕 사용자가 지원한 소일거리 목록 조회
   // users.py의 profile-history 엔드포인트: user_job_reviews와 jobs 테이블 조인으로 한 번에 모든 정보 제공
   // 반환 데이터: title, hourly_wage, place, address, start_time, end_time 등 포함
   static async getUserAppliedJobs(userId) {
     try {
-      console.log(`📋 사용자 ${userId} 지원한 일자리 목록 조회 요청 (조인 쿼리 사용)`);
+      console.log(`📋 사용자 ${userId} 지원한 소일거리 목록 조회 요청 (조인 쿼리 사용)`);
       
       const response = await fetch(`${API_BASE_URL}/${userId}/profile-history`, {
         method: 'GET',
@@ -251,23 +251,23 @@ class ApiService {
         },
       });
       
-      console.log(`📥 지원한 일자리 목록 응답 상태 (${userId}):`, response.status, response.statusText);
+      console.log(`📥 지원한 소일거리 목록 응답 상태 (${userId}):`, response.status, response.statusText);
       
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(`❌ 지원한 일자리 목록 에러 응답 (${userId}):`, errorText);
+        console.error(`❌ 지원한 소일거리 목록 에러 응답 (${userId}):`, errorText);
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
       
       const data = await response.json();
-      console.log(`✅ 사용자 ${userId} 지원한 일자리 목록 조회 성공 (조인된 데이터):`, data);
+      console.log(`✅ 사용자 ${userId} 지원한 소일거리 목록 조회 성공 (조인된 데이터):`, data);
       console.log('📊 조인으로 가져온 필드들:', data.length > 0 ? Object.keys(data[0]) : '데이터 없음');
       
       // 백엔드에서 user_job_reviews와 jobs를 조인하여 가져온 완전한 데이터 반환
       // 추가 API 호출 없이 모든 필요한 정보를 포함
       return data;
     } catch (error) {
-      console.error(`❌ 사용자 ${userId} 지원한 일자리 목록 조회 실패:`, error);
+      console.error(`❌ 사용자 ${userId} 지원한 소일거리 목록 조회 실패:`, error);
       throw error;
     }
   }

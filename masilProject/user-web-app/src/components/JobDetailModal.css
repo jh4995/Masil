@@ -10,7 +10,7 @@
   padding: 16px;
   border: 2px solid var(--border-color);
   border-radius: 12px;
-  font-size: 16px; /* 5060세대 고려 폰트 크기 */
+  font-size: 18px; /* 개선: 16px → 18px로 증가 */
   font-family: inherit;
   color: var(--text-secondary);
   background: white;
@@ -38,7 +38,7 @@
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 15px; /* 5060세대 고려 폰트 크기 */
+  font-size: 17px; /* 개선: 15px → 17px로 증가 */
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -64,8 +64,8 @@
 .job-apply-button,
 .job-close-button {
   flex: 1;
-  height: 56px; /* 터치 영역 확대 */
-  font-size: 18px; /* 5060세대 고려 폰트 크기 증가 */
+  height: 64px; /* 개선: 56px → 64px로 증가 (VoiceModal 참고) */
+  font-size: 20px; /* 개선: 18px → 20px로 증가 */
   font-weight: 700;
   border: none;
   border-radius: 12px;
@@ -99,7 +99,9 @@
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(191, 204, 107, 0.3);
-}/* src/components/JobDetailModal.css */
+}
+
+/* src/components/JobDetailModal.css */
 
 /* CSS 변수 정의 - 5060세대를 위한 색상 테마 */
 :root {
@@ -195,7 +197,7 @@
 }
 
 .job-modal-title {
-  font-size: 22px; /* 5060세대 고려 폰트 크기 증가 */
+  font-size: 24px; /* 개선: 22px → 24px로 증가 */
   font-weight: 700;
   margin: 0;
   color: white;
@@ -207,12 +209,12 @@
   background: rgba(255, 255, 255, 0.2);
   border: none;
   color: white;
-  font-size: 24px;
+  font-size: 26px; /* 개선: 24px → 26px로 증가 */
   cursor: pointer;
   padding: 8px;
   border-radius: 50%;
-  width: 44px; /* 터치 영역 보장 */
-  height: 44px;
+  width: 48px; /* 개선: 44px → 48px로 증가 */
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -244,7 +246,7 @@
 }
 
 .job-wage-amount {
-  font-size: 24px; /* 5060세대 고려 폰트 크기 증가 */
+  font-size: 26px; /* 개선: 24px → 26px로 증가 */
   font-weight: 800;
   color: var(--primary-color);
   background: var(--accent-color);
@@ -271,7 +273,7 @@
 }
 
 .job-info-label {
-  font-size: 18px; /* 5060세대 고려 폰트 크기 증가 */
+  font-size: 20px; /* 개선: 18px → 20px로 증가 */
   font-weight: 600;
   color: var(--text-primary);
   min-width: 120px; /* 라벨 영역 확대 */
@@ -287,7 +289,7 @@
 .job-time,
 .job-participants,
 .job-client {
-  font-size: 18px; /* 5060세대 고려 폰트 크기 증가 */
+  font-size: 20px; /* 개선: 18px → 20px로 증가 */
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 4px;
@@ -295,7 +297,7 @@
 
 .job-address,
 .job-days {
-  font-size: 16px; /* 5060세대 고려 폰트 크기 증가 */
+  font-size: 18px; /* 개선: 16px → 18px로 증가 */
   color: var(--text-secondary);
   line-height: 1.4;
 }
@@ -313,20 +315,18 @@
 }
 
 .job-description-title {
-  font-size: 20px; /* 5060세대 고려 폰트 크기 증가 */
+  font-size: 22px; /* 개선: 20px → 22px로 증가 */
   font-weight: 700;
   color: var(--primary-color);
   margin: 0 0 16px 0;
 }
 
 .job-description-content {
-  font-size: 17px; /* 5060세대 고려 폰트 크기 증가 */
+  font-size: 19px; /* 개선: 17px → 19px로 증가 */
   color: var(--text-secondary);
   line-height: 1.6;
   margin: 0;
 }
-
-
 
 /* 모바일 최적화 - 새 섹션들 포함 */
 @media (max-width: 768px) {
@@ -349,13 +349,13 @@
   }
   
   .job-modal-title {
-    font-size: 20px;
+    font-size: 22px; /* 개선: 20px → 22px로 증가 */
   }
   
   .job-modal-close {
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
+    width: 44px; /* 개선: 40px → 44px로 증가 */
+    height: 44px;
+    font-size: 22px; /* 개선: 20px → 22px로 증가 */
   }
   
   .job-modal-content {
@@ -369,7 +369,7 @@
   }
   
   .job-wage-amount {
-    font-size: 20px;
+    font-size: 22px; /* 개선: 20px → 22px로 증가 */
     padding: 10px 20px;
   }
   
@@ -378,7 +378,7 @@
   }
   
   .job-info-label {
-    font-size: 17px;
+    font-size: 19px; /* 개선: 17px → 19px로 증가 */
     min-width: 100px;
   }
   
@@ -386,12 +386,12 @@
   .job-time,
   .job-participants,
   .job-client {
-    font-size: 17px;
+    font-size: 19px; /* 개선: 17px → 19px로 증가 */
   }
   
   .job-address,
   .job-days {
-    font-size: 15px;
+    font-size: 17px; /* 개선: 15px → 17px로 증가 */
   }
   
   .job-description-section {
@@ -400,20 +400,20 @@
   }
   
   .job-description-title {
-    font-size: 18px;
+    font-size: 20px; /* 개선: 18px → 20px로 증가 */
   }
   
   .job-description-content {
-    font-size: 16px;
+    font-size: 18px; /* 개선: 16px → 18px로 증가 */
   }
   
   .review-textarea {
-    font-size: 15px;
+    font-size: 17px; /* 개선: 15px → 17px로 증가 */
     padding: 14px;
   }
   
   .review-save-btn {
-    font-size: 14px;
+    font-size: 16px; /* 개선: 14px → 16px로 증가 */
     padding: 8px 16px;
   }
   
@@ -424,8 +424,8 @@
   
   .job-apply-button,
   .job-close-button {
-    height: 52px;
-    font-size: 17px;
+    height: 58px; /* 개선: 52px → 58px로 증가 */
+    font-size: 19px; /* 개선: 17px → 19px로 증가 */
   }
 }
 
@@ -449,7 +449,7 @@
   }
   
   .job-modal-title {
-    font-size: 18px;
+    font-size: 20px; /* 개선: 18px → 20px로 증가 */
   }
   
   .job-modal-content {
@@ -459,14 +459,14 @@
   
   .job-info-label {
     min-width: 90px;
-    font-size: 16px;
+    font-size: 18px; /* 개선: 16px → 18px로 증가 */
   }
   
   .job-place,
   .job-time,
   .job-participants,
   .job-client {
-    font-size: 16px;
+    font-size: 18px; /* 개선: 16px → 18px로 증가 */
   }
   
   .job-description-section {
@@ -475,21 +475,21 @@
   }
   
   .job-description-title {
-    font-size: 16px;
+    font-size: 18px; /* 개선: 16px → 18px로 증가 */
   }
   
   .job-description-content {
-    font-size: 15px;
+    font-size: 17px; /* 개선: 15px → 17px로 증가 */
   }
   
   .review-textarea {
-    font-size: 14px;
+    font-size: 16px; /* 개선: 14px → 16px로 증가 */
     padding: 12px;
     min-height: 70px;
   }
   
   .review-save-btn {
-    font-size: 13px;
+    font-size: 15px; /* 개선: 13px → 15px로 증가 */
     padding: 6px 14px;
   }
   
@@ -500,7 +500,7 @@
   
   .job-apply-button,
   .job-close-button {
-    height: 48px;
-    font-size: 16px;
+    height: 54px; /* 개선: 48px → 54px로 증가 */
+    font-size: 18px; /* 개선: 16px → 18px로 증가 */
   }
 }

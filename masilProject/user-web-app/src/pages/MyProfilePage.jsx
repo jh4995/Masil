@@ -1,4 +1,4 @@
-// src/pages/MyProfilePage.jsx
+// src/pages/MyProfilePage.jsx - 5060세대 최적화 버전
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient'; // 🆕 Supabase 클라이언트 import 추가
@@ -68,14 +68,14 @@ export default function MyProfilePage({ session }) {
       setLoading(true);
       setError(null);
       
-      // 지원한 일자리와 프로필 정보를 병렬로 조회
+      // 지원한 소일거리와 프로필 정보를 병렬로 조회
       const [appliedJobsData, profileData] = await Promise.all([
         ApiService.getUserAppliedJobs(userId),
         ApiService.getUserProfile(userId)
       ]);
       
       console.log('✅ 사용자 데이터 조회 성공');
-      console.log('📋 지원한 일자리:', appliedJobsData);
+      console.log('📋 지원한 소일거리:', appliedJobsData);
       console.log('👤 프로필 정보:', profileData);
       
       setAppliedJobs(appliedJobsData || []);
@@ -441,7 +441,7 @@ export default function MyProfilePage({ session }) {
       <div className="profile-user-info">
         <div className="user-avatar">👤</div>
         <h2 className="user-name">{userNickname}님</h2>
-        <p className="user-subtitle">지원한 일자리 목록</p>
+        <p className="user-subtitle">지원한 소일거리 목록</p>
       </div>
 
       {/* 컨텐츠 영역 */}
@@ -714,11 +714,11 @@ export default function MyProfilePage({ session }) {
           )}
         </div>
         
-        {/* 지원한 일자리 섹션 */}
+        {/* 지원한 소일거리 섹션 */}
         {loading ? (
           <div className="profile-loading">
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
-            <p>지원한 일자리 목록을 불러오는 중...</p>
+            <p>지원한 소일거리 목록을 불러오는 중...</p>
           </div>
         ) : error ? (
           <div className="profile-error-message">
@@ -731,15 +731,14 @@ export default function MyProfilePage({ session }) {
         ) : appliedJobs.length === 0 ? (
           <div className="profile-empty">
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>📝</div>
-            <h3>아직 지원한 일자리가 없습니다</h3>
-            <p>지도에서 관심있는 일자리에 지원해보세요!</p>
+            <h3>아직 지원한 소일거리가 없습니다</h3>
+            <p>지도에서 관심있는 소일거리에 지원해보세요!</p>
           </div>
         ) : (
           <div className="applied-jobs-list">
             <div className="applied-jobs-header">
-                <div className="profile-section-divider"></div>
-
-              <h3>지원한 일자리 ({appliedJobs.length}개)</h3>
+              <div className="profile-section-divider"></div>
+              <h3>지원한 소일거리 ({appliedJobs.length}개)</h3>
             </div>
             
             {appliedJobs.map((item, index) => {

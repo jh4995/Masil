@@ -174,7 +174,7 @@
   transform: translateY(-1px);
 }
 
-/* 지원한 일자리 목록 */
+/* 지원한 소일거리 목록 */
 .applied-jobs-list {
   display: flex;
   flex-direction: column;
@@ -192,7 +192,7 @@
   margin: 0;
 }
 
-/* 일자리 카드 */
+/* 소일거리 카드 */
 .applied-job-card {
   background: white;
   border-radius: 16px;
