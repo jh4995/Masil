@@ -129,22 +129,22 @@ export default function JobApplicationModal({ job, userId, onClose, isVisible })
           )}
         </div>
 
-        {/* 버튼 영역 */}
+        {/* ✅ 수정: 버튼 영역 - 버튼 순서 변경 */}
         {!success && (
           <div className="application-modal-actions">
-            <button 
-              className="application-cancel-btn" 
-              onClick={onClose}
-              disabled={isSubmitting}
-            >
-              취소
-            </button>
             <button 
               className="application-submit-btn" 
               onClick={handleApply}
               disabled={isSubmitting}
             >
               {isSubmitting ? '지원 중...' : '지원하기'}
+            </button>
+            <button 
+              className="application-cancel-btn" 
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
+              취소
             </button>
           </div>
         )}

@@ -3,7 +3,13 @@
 import React, { useState } from 'react';
 import './BottomNavBar.css';
 
-export default function BottomNavBar({ onMicClick, onJobListClick, onProfileClick, initialSelected = '' }) {
+export default function BottomNavBar({ 
+  onMicClick, 
+  onJobListClick, 
+  onProfileClick, 
+  initialSelected = '',
+  showTooltips = false // ✅ 새로운 props: 툴팁 표시 여부
+}) {
   const [selectedTab, setSelectedTab] = useState(initialSelected);
 
   const handleTabClick = (tabName) => {
@@ -25,6 +31,12 @@ export default function BottomNavBar({ onMicClick, onJobListClick, onProfileClic
         className={`nav-item ${selectedTab === 'list' ? 'active' : ''}`}
         onClick={() => handleTabClick('list')}
       >
+        {/* ✅ 새로운 기능: AI 추천 툴팁 */}
+        {showTooltips && (
+          <div className="nav-tooltip ai-tooltip">
+            AI추천 기능을 <br></br>사용해보세요!
+          </div>
+        )}
         <div className="nav-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
               <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
@@ -37,6 +49,12 @@ export default function BottomNavBar({ onMicClick, onJobListClick, onProfileClic
         className={`nav-item ${selectedTab === 'voice' ? 'active' : ''}`}
         onClick={() => handleTabClick('voice')}
       >
+        {/* ✅ 새로운 기능: 음성 추천 툴팁 */}
+        {showTooltips && (
+          <div className="nav-tooltip voice-tooltip">
+            음성추천 기능을 <br></br>사용해보세요!
+          </div>
+        )}
         <div className="nav-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>

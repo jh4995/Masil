@@ -18,6 +18,9 @@ export default function ActivityListPage({ session }) {
   const [recommendationCount, setRecommendationCount] = useState(0);
   const [recommendedJobs, setRecommendedJobs] = useState([]); // 추천된 일자리 목록 저장
   
+  // ✅ 새로운 상태: 툴팁 표시 여부 (초기에만 표시)
+  const [showTooltips, setShowTooltips] = useState(true);
+  
   // 실제 로그인된 사용자 ID 사용
   const userId = session?.user?.id;
 
@@ -67,6 +70,15 @@ export default function ActivityListPage({ session }) {
       setActivities(mockActivities);
       setLoading(false);
     }, 1000);
+
+    // ✅ 새로운 기능: 10초 후 툴팁 자동 숨김
+    const tooltipTimer = setTimeout(() => {
+      setShowTooltips(false);
+    }, 10000); // 10초 후 툴팁 숨김
+
+    return () => {
+      clearTimeout(tooltipTimer);
+    };
   }, []);
 
   // 마이크 버튼 클릭 핸들러
@@ -74,6 +86,8 @@ export default function ActivityListPage({ session }) {
     console.log('🎤 마이크 버튼 클릭됨');
     setShowVoiceModal(true);
     setSelectedTab('voice');
+    // ✅ 버튼 클릭 시 툴팁 숨김
+    setShowTooltips(false);
   };
 
   // 음성 모달 닫기 핸들러
@@ -102,12 +116,16 @@ export default function ActivityListPage({ session }) {
     
     setIsRecommendationMode(true);
     setSelectedTab('list');
+    // ✅ 버튼 클릭 시 툴팁 숨김
+    setShowTooltips(false);
   };
 
   // 나의 정보 버튼 클릭 핸들러
   const handleProfileClick = () => {
     console.log('👤 나의 정보 버튼 클릭됨');
     navigate('/my-profile');
+    // ✅ 버튼 클릭 시 툴팁 숨김
+    setShowTooltips(false);
   };
 
   // 추천 완료 핸들러
@@ -149,6 +167,7 @@ export default function ActivityListPage({ session }) {
       <div className="activity-header">
         <h1 className="activity-title">
           {isRecommendationMode 
+            
             ? `AI 추천 일거리${recommendationCount > 0 ? ` (${recommendationCount}개)` : ''}` 
             : '추천 활동 목록'
           }
@@ -186,12 +205,13 @@ export default function ActivityListPage({ session }) {
         )}
       </div>
 
-      {/* 하단 네비게이션 */}
+      {/* ✅ 수정: 하단 네비게이션에 showTooltips prop 전달 */}
       <BottomNavBar 
         onMicClick={handleMicClick}
         onJobListClick={handleJobListClick}
         onProfileClick={handleProfileClick}
-        initialSelected={selectedTab} 
+        initialSelected={selectedTab}
+        showTooltips={showTooltips} // ✅ 툴팁 표시 여부 전달
       />
 
       {/* 음성 모달 */}

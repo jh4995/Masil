@@ -272,6 +272,103 @@ class ApiService {
     }
   }
 
+  // 🆕 사용자 프로필 조회 (백엔드 @router.get("/{user_id}/profile") 엔드포인트)
+  static async getUserProfile(userId) {
+    try {
+      console.log(`👤 사용자 ${userId} 프로필 조회 요청`);
+      
+      const response = await fetch(`${API_BASE_URL}/${userId}/profile`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      console.log(`📥 프로필 조회 응답 상태 (${userId}):`, response.status, response.statusText);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ 프로필 조회 에러 응답 (${userId}):`, errorText);
+        
+        if (response.status === 404) {
+          throw new Error('프로필을 찾을 수 없습니다.');
+        }
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+      
+      const data = await response.json();
+      console.log(`✅ 사용자 ${userId} 프로필 조회 성공:`, data);
+      return data;
+    } catch (error) {
+      console.error(`❌ 사용자 ${userId} 프로필 조회 실패:`, error);
+      throw error;
+    }
+  }
+
+  // 🆕 사용자 프로필 수정 (백엔드 @router.put("/{user_id}/profile") 엔드포인트)
+  static async updateUserProfile(userId, profileData) {
+    try {
+      console.log(`✏️ 사용자 ${userId} 프로필 수정 요청:`, profileData);
+      
+      // 백엔드 스키마 검증을 위한 데이터 정리
+      const cleanedData = {};
+      
+      // Optional[str] 필드들
+      if (profileData.nickname !== undefined) cleanedData.nickname = profileData.nickname;
+      if (profileData.gender !== undefined) cleanedData.gender = profileData.gender;
+      if (profileData.date_of_birth !== undefined) cleanedData.date_of_birth = profileData.date_of_birth;
+      if (profileData.home_address !== undefined) cleanedData.home_address = profileData.home_address;
+      if (profileData.work_history !== undefined) cleanedData.work_history = profileData.work_history;
+      
+      // List[str] 필드들
+      if (profileData.preferred_jobs !== undefined) cleanedData.preferred_jobs = profileData.preferred_jobs;
+      if (profileData.interests !== undefined) cleanedData.interests = profileData.interests;
+      
+      // Dict[str, Any] 필드
+      if (profileData.availability_json !== undefined) cleanedData.availability_json = profileData.availability_json;
+      
+      // Optional[int] 필드들
+      if (profileData.ability_physical !== undefined) cleanedData.ability_physical = profileData.ability_physical;
+      if (profileData.max_travel_time_min !== undefined) cleanedData.max_travel_time_min = profileData.max_travel_time_min;
+      
+      // str with pattern 필드
+      if (profileData.preferred_environment !== undefined) cleanedData.preferred_environment = profileData.preferred_environment;
+      
+      console.log(`📤 정리된 프로필 수정 데이터:`, cleanedData);
+      
+      const response = await fetch(`${API_BASE_URL}/${userId}/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(cleanedData),
+      });
+      
+      console.log(`📥 프로필 수정 응답 상태 (${userId}):`, response.status, response.statusText);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ 프로필 수정 에러 응답 (${userId}):`, errorText);
+        
+        if (response.status === 400) {
+          throw new Error('수정할 내용이 없습니다.');
+        } else if (response.status === 404) {
+          throw new Error('프로필을 찾을 수 없어 수정에 실패했습니다.');
+        } else if (response.status === 422) {
+          throw new Error('입력한 정보의 형식이 올바르지 않습니다.');
+        }
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+      
+      const data = await response.json();
+      console.log(`✅ 사용자 ${userId} 프로필 수정 성공:`, data);
+      return data;
+    } catch (error) {
+      console.error(`❌ 사용자 ${userId} 프로필 수정 실패:`, error);
+      throw error;
+    }
+  }
+
   // 🌍 사용자 위치 기반 주변 일거리 조회
   static async getNearbyJobs(latitude, longitude, radiusKm = 5) {
     try {

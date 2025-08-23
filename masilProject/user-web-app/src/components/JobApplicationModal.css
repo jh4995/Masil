@@ -141,7 +141,8 @@
   background: #f8f9fa;
   padding: 16px;
   border-radius: 12px;
-  border-left: 4px solid var(--accent-color);
+  /* ✅ 수정: 왼쪽 녹색 바 제거 */
+  border: 1px solid var(--border-color);
 }
 
 .job-summary h4 {
@@ -258,27 +259,30 @@
   font-family: inherit;
 }
 
+/* ✅ 수정: 버튼 순서 변경 - 지원하기 버튼을 primary로 */
+.application-submit-btn {
+  background: var(--primary-color);
+  color: white;
+  order: 1; /* 먼저 표시 */
+}
+
 .application-cancel-btn {
   background: transparent;
   color: var(--text-secondary);
   border: 2px solid var(--border-color);
-}
-
-.application-cancel-btn:hover:not(:disabled) {
-  background: var(--text-secondary);
-  color: white;
-  transform: translateY(-1px);
-}
-
-.application-submit-btn {
-  background: var(--primary-color);
-  color: white;
+  order: 2; /* 나중에 표시 */
 }
 
 .application-submit-btn:hover:not(:disabled) {
   background: var(--accent-color);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(44, 62, 80, 0.2);
+}
+
+.application-cancel-btn:hover:not(:disabled) {
+  background: var(--text-secondary);
+  color: white;
+  transform: translateY(-1px);
 }
 
 .application-cancel-btn:disabled,
@@ -288,16 +292,22 @@
   transform: none !important;
 }
 
-/* 모바일 최적화 */
+/* ✅ 수정: 모바일 최적화 - 중앙 정렬 개선 */
 @media (max-width: 768px) {
   .application-modal-backdrop {
     padding: 16px;
+    /* ✅ 추가: 완벽한 중앙 정렬 보장 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   
   .application-modal-container {
     max-width: 100%;
     max-height: 90vh;
     border-radius: 16px;
+    /* ✅ 추가: 중앙 정렬을 위한 margin 설정 */
+    margin: 0;
   }
   
   .application-modal-header {
@@ -361,10 +371,16 @@
 @media (max-width: 480px) {
   .application-modal-backdrop {
     padding: 12px;
+    /* ✅ 추가: 작은 화면에서도 완벽한 중앙 정렬 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   
   .application-modal-container {
     border-radius: 12px;
+    /* ✅ 추가: 작은 화면에서 margin 제거 */
+    margin: 0;
   }
   
   .application-modal-header {
