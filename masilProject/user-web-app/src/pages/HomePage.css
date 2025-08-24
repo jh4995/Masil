@@ -154,7 +154,7 @@
   /* 버튼 글자 크기 - 조정 가능한 변수들 */
   --button-font-size-desktop: 28px;    /* 데스크톱 버튼 글자 크기 */
   --button-font-size-tablet: 26px;     /* 태블릿 버튼 글자 크기 */
-  --button-font-size-mobile: 24px;     /* 모바일 버튼 글자 크기 */
+  --button-font-size-mobile: 32px;     /* 모바일 버튼 글자 크기 */
   --button-font-size-small: 22px;      /* 작은 화면 버튼 글자 크기 */
 }
 
