@@ -159,9 +159,9 @@ export default function VoiceModal({ onClose, excludeJobIds = [], userId, onVoic
       formData.append('user_id', userId); // 동적 사용자 ID 사용
       
       // excludeJobIds가 있다면 추가
-      if (excludeJobIds && excludeJobIds.length > 0) {
-        formData.append('exclude_ids', excludeJobIds.join(','));
-      }
+      // if (excludeJobIds && excludeJobIds.length > 0) {
+      //   formData.append('exclude_ids', excludeJobIds.join(','));
+      // }
 
       // 음성 추천 API 호출
       const response = await fetch('https://jobisbe.ngrok.app/api/recommend-voice', {
@@ -184,8 +184,12 @@ export default function VoiceModal({ onClose, excludeJobIds = [], userId, onVoic
         setPhase('recommendation');
         // ⚠️ 주의: transcript는 여기서 덮어쓰지 않고 유지합니다
       } else {
+        // 🆕 API 응답의 answer 필드를 활용한 에러 메시지 처리
+        const errorMessage = result.answer || '추천할 수 있는 소일거리를 찾지 못했습니다.';
+        console.log('📍 지역 관련 응답 메시지:', errorMessage);
+        
         setPhase('complete');
-        setError('추천할 수 있는 소일거리를 찾지 못했습니다.');
+        setError(errorMessage);
       }
 
     } catch (error) {
@@ -252,7 +256,12 @@ export default function VoiceModal({ onClose, excludeJobIds = [], userId, onVoic
       case 'complete':
         return '음성 인식 완료';
       case 'recommendation':
-        return '재추천 결과입니다!';
+        return (
+          <div className="recommendation-title-wrapper">
+            <span className="recommendation-title-line1">가장 적합한</span>
+            <span className="recommendation-title-line2">소일거리 추천!</span>
+          </div>
+        );
       default:
         return '편하게 말씀해주세요';
     }

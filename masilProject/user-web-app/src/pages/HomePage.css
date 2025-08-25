@@ -133,7 +133,7 @@
 }
 */
 
-/* src/pages/HomePage.css - 5060세대 최적화 버전 */
+/* src/pages/HomePage.css - 5060세대 최적화 버전 + 브라우저 주소창 대응 */
 
 @import url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonnu_font@1.1/Pretendard-Regular/font.css');
 
@@ -158,15 +158,29 @@
   --button-font-size-small: 22px;      /* 작은 화면 버튼 글자 크기 */
 }
 
+/* 🆕 브라우저 주소창 문제 해결을 위한 전체 스타일 수정 */
 .homepage-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  /* 수정: 고정 높이 대신 동적 뷰포트 높이 사용 */
   min-height: 100vh;
+  min-height: 100dvh; /* iOS Safari 지원 */
   padding: 40px 20px;
   background: white;
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  /* 🆕 추가: 스크롤바 제거 및 오버플로우 제어 */
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh; /* iOS Safari 지원 */
+  box-sizing: border-box;
 }
 
 .logo-section {
@@ -303,6 +317,14 @@
 
 /* 태블릿 최적화 */
 @media (max-width: 768px) and (min-width: 481px) {
+  .homepage-container {
+    /* 🆕 수정: 태블릿에서도 동적 높이 사용 */
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: 100vh;
+    height: 100dvh;
+  }
+  
   .signup-btn,
   .login-btn {
     font-size: var(--button-font-size-tablet); /* 태블릿용 글자 크기 */
@@ -314,6 +336,15 @@
 @media (max-width: 480px) {
   .homepage-container {
     padding: 35px 18px;
+    /* 🆕 수정: 모바일에서도 동적 높이 사용 및 안전 영역 고려 */
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: 100vh;
+    height: 100dvh;
+    padding-top: max(35px, env(safe-area-inset-top));
+    padding-bottom: max(18px, env(safe-area-inset-bottom));
+    padding-left: max(18px, env(safe-area-inset-left));
+    padding-right: max(18px, env(safe-area-inset-right));
   }
   
   .logo-section {
@@ -372,6 +403,13 @@
 @media (max-width: 360px) {
   .homepage-container {
     padding: 30px 16px;
+    /* 🆕 수정: 작은 화면에서도 동적 높이 사용 */
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: 100vh;
+    height: 100dvh;
+    padding-top: max(30px, env(safe-area-inset-top));
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
   }
   
   .project-title {
@@ -411,6 +449,11 @@
 @media (min-width: 769px) {
   .homepage-container {
     padding: 50px 30px;
+    /* 🆕 수정: 데스크톱에서도 동적 높이 사용 */
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: 100vh;
+    height: 100dvh;
   }
   
   .logo-section {
@@ -455,5 +498,40 @@
     font-size: 30px; /* 개선: 데스크톱에서 가장 큰 글자 크기 */
     font-weight: 800; /* 개선: 데스크톱에서도 굵게 */
     border-radius: 16px;
+  }
+}
+
+/* 🆕 추가: iOS Safari 주소창 숨김 효과 */
+@supports (-webkit-touch-callout: none) {
+  .homepage-container {
+    /* iOS Safari에서 주소창 숨김을 위한 추가 높이 */
+    min-height: calc(100vh + 1px);
+    min-height: calc(100dvh + 1px);
+  }
+}
+
+/* 🆕 추가: 가로모드 대응 */
+@media (orientation: landscape) and (max-height: 500px) {
+  .homepage-container {
+    padding: 20px;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  
+  .logo-section {
+    margin-bottom: 40px;
+  }
+  
+  .title-section {
+    margin-bottom: 40px;
+  }
+  
+  .project-title {
+    font-size: 28px;
+  }
+  
+  .logo-circle {
+    width: 100px;
+    height: 100px;
   }
 }

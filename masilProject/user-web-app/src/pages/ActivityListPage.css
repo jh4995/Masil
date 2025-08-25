@@ -1,16 +1,29 @@
-/* src/pages/ActivityListPage.css - 5060세대 최적화 완전 새로운 구조 */
+/* src/pages/ActivityListPage.css - 5060세대 최적화 + 브라우저 주소창 대응 완전 새로운 구조 */
 
 .activity-page-container {
+  /* 🆕 수정: 브라우저 주소창 문제 해결을 위한 전체 스타일 수정 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh; /* iOS Safari 지원 */
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
   background-color: #ffffff;
   overflow: hidden;
-  position: relative;
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  box-sizing: border-box;
+  
+  /* 🆕 추가: 안전 영역 고려 (노치 대응) */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 /* 헤더 - 고정된 높이 */
@@ -47,7 +60,7 @@
   font-weight: 600; /* 개선: 500 → 600으로 증가 */
 }
 
-/* 지도 컨테이너 - 남은 공간 모두 사용 */
+/* 지도 컨테이너 - 남은 공간에서 네비게이션 바 높이를 뺀 만큼 사용 */
 .map-container {
   flex: 1; /* 남은 공간 모두 사용 */
   width: 100%;
@@ -56,6 +69,8 @@
   background-color: #f8f9fa;
   position: relative;
   overflow: hidden;
+  /* 🆕 수정: 하단 네비게이션 바 높이만큼 여유 공간 확보 */
+  min-height: calc(100% - 90px); /* 네비게이션 바 높이(90px)를 뺀 나머지 */
 }
 
 /* 지도 로딩 화면 */
@@ -107,13 +122,15 @@
   height: 100% !important;
 }
 
-/* 하단 네비게이션 바 재정의 (ActivityListPage에서만) */
+/* 🆕 수정: 하단 네비게이션 바 - 절대 위치로 하단 고정 */
 .activity-page-container .bottom-nav {
+  position: absolute; /* fixed 대신 absolute 사용 */
+  bottom: 0;
+  left: 0;
+  right: 0;
   width: 100%;
   height: 90px; /* 개선: 80px → 90px로 증가 */
   flex-shrink: 0; /* 크기 고정 */
-  position: relative; /* fixed 대신 relative */
-  bottom: auto;
   background-color: white;
   border-top: 1px solid var(--border-color, #e0e0e0);
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
@@ -123,6 +140,9 @@
   padding: 16px 0 20px; /* 개선: 12px 0 16px → 16px 0 20px로 증가 */
   box-sizing: border-box;
   z-index: 100;
+  
+  /* 🆕 추가: 안전 영역 하단 패딩 추가 */
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
 }
 
 /* 네비게이션 아이템 스타일 개선 (5060세대 고려) */
@@ -202,6 +222,12 @@
 
 /* 모바일 최적화 */
 @media (max-width: 480px) {
+  .activity-page-container {
+    /* 🆕 수정: 모바일에서도 동적 높이 사용 */
+    height: 100vh;
+    height: 100dvh;
+  }
+  
   .activity-header {
     height: 60px; /* 개선: 50px → 60px로 증가 */
     padding: 0 16px;
@@ -220,6 +246,8 @@
   .activity-page-container .bottom-nav {
     height: 82px; /* 개선: 80px → 82px로 추가 증가 */
     padding: 14px 0 18px; /* 개선: 12px 0 16px → 14px 0 18px로 증가 */
+    /* 🆕 수정: 모바일 안전 영역 패딩 강화 */
+    padding-bottom: max(18px, env(safe-area-inset-bottom));
   }
   
   .activity-page-container .bottom-nav .nav-item {
@@ -281,6 +309,8 @@
   .activity-page-container .bottom-nav {
     height: 76px;
     padding: 10px 0 14px;
+    /* 🆕 수정: 작은 화면 안전 영역 패딩 */
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
   }
   
   .activity-page-container .bottom-nav .nav-item {
@@ -295,5 +325,39 @@
   
   .activity-page-container .bottom-nav .nav-item span {
     font-size: 14px;
+  }
+}
+
+/* 🆕 추가: iOS Safari 주소창 숨김 효과 */
+@supports (-webkit-touch-callout: none) {
+  .activity-page-container {
+    /* iOS Safari에서 주소창 숨김을 위한 추가 높이 */
+    height: calc(100vh + 1px);
+    height: calc(100dvh + 1px);
+  }
+}
+
+/* 🆕 추가: 가로모드 대응 */
+@media (orientation: landscape) and (max-height: 500px) {
+  .activity-header {
+    height: 50px;
+  }
+  
+  .activity-title {
+    font-size: 18px;
+  }
+  
+  .activity-page-container .bottom-nav {
+    height: 70px;
+    padding: 10px 0 12px;
+  }
+  
+  .activity-page-container .bottom-nav .nav-item {
+    min-height: 50px;
+    padding: 8px 16px;
+  }
+  
+  .activity-page-container .bottom-nav .nav-icon {
+    font-size: 26px;
   }
 }

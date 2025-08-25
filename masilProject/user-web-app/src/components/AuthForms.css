@@ -1,4 +1,4 @@
-/* src/components/AuthForms.css - 5060세대를 위한 폰트 크기 개선 */
+/* src/components/AuthForms.css - 5060세대를 위한 폰트 크기 개선 + 브라우저 주소창 대응 */
 
 /* ✅ 추가: Pretendard 폰트 및 글로벌 설정 */
 @import url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonnu_font@1.1/Pretendard-Regular/font.css');
@@ -25,13 +25,34 @@
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 }
 
+/* 🆕 수정: 브라우저 주소창 문제 해결을 위한 컨테이너 스타일 수정 */
 .auth-container {
   max-width: 480px;
   margin: 0 auto;
   padding: 20px;
   background-color: white;
+  /* 수정: 고정 높이 대신 동적 뷰포트 높이 사용 */
   min-height: 100vh;
+  min-height: 100dvh; /* iOS Safari 지원 */
   font-size: var(--font-size-regular); /* 개선: 기본 폰트 크기를 17px로 증가 */
+  
+  /* 🆕 추가: 전체 화면 고정 및 오버플로우 제어 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+  box-sizing: border-box;
+  
+  /* 🆕 추가: 안전 영역 고려 (노치 대응) */
+  padding-top: max(20px, env(safe-area-inset-top));
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+  padding-left: max(20px, env(safe-area-inset-left));
+  padding-right: max(20px, env(safe-area-inset-right));
 }
 
 .auth-header {
@@ -600,6 +621,15 @@
 
 /* 모바일 반응형 */
 @media (max-width: 768px) {
+  .auth-container {
+    /* 🆕 수정: 모바일에서도 동적 높이 사용 */
+    height: 100vh;
+    height: 100dvh;
+    padding: 18px;
+    padding-top: max(18px, env(safe-area-inset-top));
+    padding-bottom: max(18px, env(safe-area-inset-bottom));
+  }
+  
   .schedule-table {
     margin: 18px -10px; /* 개선: 15px → 18px로 증가 */
   }
@@ -629,6 +659,11 @@
 @media (max-width: 480px) {
   .auth-container {
     padding: 18px; /* 개선: 16px → 18px로 증가 */
+    /* 🆕 수정: 작은 화면에서도 동적 높이 사용 */
+    height: 100vh;
+    height: 100dvh;
+    padding-top: max(18px, env(safe-area-inset-top));
+    padding-bottom: max(18px, env(safe-area-inset-bottom));
   }
   
   .interest-grid {
@@ -696,5 +731,42 @@
   
   .back-btn {
     font-size: 24px; /* 개선: 모바일에서도 충분한 크기 유지 */
+  }
+}
+
+/* 🆕 추가: iOS Safari 주소창 숨김 효과 */
+@supports (-webkit-touch-callout: none) {
+  .auth-container {
+    /* iOS Safari에서 주소창 숨김을 위한 추가 높이 */
+    height: calc(100vh + 1px);
+    height: calc(100dvh + 1px);
+  }
+}
+
+/* 🆕 추가: 가로모드 대응 */
+@media (orientation: landscape) and (max-height: 500px) {
+  .auth-container {
+    padding: 15px;
+    height: 100vh;
+    height: 100dvh;
+  }
+  
+  .auth-header {
+    margin-bottom: 20px;
+    padding-top: 10px;
+  }
+  
+  .auth-title {
+    font-size: 22px;
+  }
+  
+  .section-title {
+    font-size: 18px;
+    padding: 12px 16px;
+  }
+  
+  .form-actions {
+    margin-top: 30px;
+    margin-bottom: 20px;
   }
 }

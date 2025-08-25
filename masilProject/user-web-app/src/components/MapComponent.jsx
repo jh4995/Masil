@@ -100,7 +100,7 @@ export default function MapComponent({
           (error) => {
             console.warn('⚠️ 사용자 위치 획득 실패, 기본 위치 사용:', error);
             // 기본 위치: 서울시청
-            setUserLocation({ latitude: 37.5665, longitude: 126.9780 });
+            setUserLocation({ latitude: 37.5117, longitude: 127.0590 });
           },
           { timeout: 10000, enableHighAccuracy: true }
         );
@@ -253,13 +253,13 @@ export default function MapComponent({
       let markerColor;
       if (isVoiceRecommendationMode) {
         // 음성 추천 모드: 보라색
-        markerColor = '#5833aeff'; // 보라색
+        markerColor = '#980df6ff'; // 보라색
       } else if (isRecommendationMode) {
         // AI 추천 모드: 빨간색
         markerColor = '#ff0000d1'; // 빨간색
       } else {
         // 일반 모드: 파란색
-        markerColor = '#001affff'; // 파란색
+        markerColor = '#0400ffff'; // 파란색
       }
       
       const marker = new window.naver.maps.Marker({
